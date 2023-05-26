@@ -23,7 +23,6 @@ module.exports = {
                 .setName('search')
                 .setDescription('Searches for a song on YouTube')
                 .addStringOption((option) => option.setName('searchterms').setDescription('The search keywords').setRequired(true))
-                .addIntegerOption((option) => option.setName('index').setDescription('nth result of the search'))
         ),
     async execute(interaction, client) {
         const player = useMasterPlayer()
@@ -93,7 +92,7 @@ module.exports = {
                 let searchterms = interaction.options.getString('searchterms');
                 const s_result = await player.search(searchterms, {
                     requestedBy: interaction.user,
-                    searchEngine: QueryType.AUTO
+                    searchEngine: QueryType.YOUTUBE_VIDEO
                 });
                 if (!s_result.hasTracks())
                     return interaction.reply('No results!');

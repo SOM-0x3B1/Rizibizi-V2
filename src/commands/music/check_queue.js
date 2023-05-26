@@ -13,10 +13,11 @@ module.exports = {
             return await interaction.reply('There are no songs in the queue.');
 
         const totalPages = Math.ceil(queue.tracks.size / 10);
-        const page = (interaction.option ? interaction.option.getNumber('page') : 1) - 1;
+
+        const page = (interaction.options._hoistedOptions.length > 0 ? interaction.options.getNumber('page') : 1) - 1;
 
         if (page > totalPages)
-            return await interaction.reply(`Invalid page! There are only a total of ${totalpages} pages of songs.`);
+            return await interaction.reply(`Invalid page! There are only a total of ${totalPages === 0 ? 1 : totalPages} pages of songs.`);
 
         /*console.log(queue.tracks);
     const queueString = queue.tracks.slice(page * 10, page * 10 + 10).map((song, i) => {
@@ -26,7 +27,7 @@ module.exports = {
         let queueString = '';
         for (let i = page * 10; i < page * 10 + 10 && i < queue.tracks.size; i++) {
             let song = queue.tracks.data[i];
-            queueString += `**${page * 10 + i + 1}.** [${song.duration}] ${song.title} -- <@${song.requestedBy.id}>\n`;
+            queueString += `**${i + 1}.** [${song.duration}] ${song.title} -- <@${song.requestedBy.id}>\n`;
         }
 
         const currentSong = queue.currentTrack;
@@ -35,10 +36,10 @@ module.exports = {
             embeds: [
                 new EmbedBuilder()
                     .setTitle('Queue')
-                    .setDescription(`**Currently Playing**\n`
+                    .setDescription(`**Currently Playing**\n` +
                         (currentSong ? `[${currentSong.duration}] ${currentSong.title} -- <@${currentSong.requestedBy.id}>` : 'none') + `\n\n**Queue**\n${queueString}`)
                     .setFooter({
-                        text: `Page ${page + 1} of ${totalPages}`
+                        text: `Page ${page + 1} of ${totalPages === 0 ? 1 : totalPages}`
                     })
             ]
         });

@@ -1,21 +1,27 @@
-module.exports ={
+module.exports = {
     name: 'interactionCreate',
-    async execute(interaction, client){
-        if(interaction.isChatInputCommand()){
-            const {commands} = client;
-            const {commandName} = interaction;
+    async execute(interaction, client) {
+        if (interaction.isChatInputCommand()) {
+            const { commands } = client;
+            const { commandName } = interaction;
             const command = commands.get(commandName);
 
-            if(!command) 
+            if (!command)
                 return;
-            try{
+
+            try {
                 await command.execute(interaction, client);
-            } catch(err){
+            } catch (err) {
                 console.error(err);
-                await interaction.reply({
-                    content: 'Something went horribly wrong while executing this command...',
-                    ephemeral: true
-                });
+                try {
+                    await interaction.reply({
+                        content: 'Something went horribly wrong while executing this command...',
+                        ephemeral: true
+                    });
+                } catch (err2) {
+                    console.log('=================');
+                    console.error(err2);
+                }
             }
         }
     }
