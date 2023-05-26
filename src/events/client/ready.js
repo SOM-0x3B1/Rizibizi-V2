@@ -5,7 +5,7 @@ module.exports = {
     once: true,
     async execute(client){
         client.user.setActivity({
-            name: 'your every move 👁️',
+            name: 'while you sleep 👁️',
             type: ActivityType.Watching
         });
 
