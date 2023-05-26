@@ -27,6 +27,7 @@ module.exports = {
                 .setDescription('Searches for a song on YouTube')
                 .addStringOption((option) => option.setName('searchterms').setDescription('The search keywords').setRequired(true))
         ),
+        
     async execute(interaction, client) {
         const player = useMasterPlayer()
 
