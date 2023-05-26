@@ -1,5 +1,4 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
 const { useMasterPlayer } = require('discord-player');
 
 module.exports = {
@@ -23,6 +22,6 @@ module.exports = {
             return await interaction.reply('There are no songs in the queue!');
 
         await queue.filters.ffmpeg.toggle([ filter ]);
-        await interaction.reply(`Toggled ${filter} filter on the queue.`);
+        await interaction.reply(`Toggled **${filter}** filter on the queue.`);
     }
 }
