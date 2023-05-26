@@ -11,7 +11,7 @@ module.exports ={
             try{
                 await command.execute(interaction, client);
             } catch(err){
-                console.error(error);
+                console.error(err);
                 await interaction.reply({
                     content: 'Something went horribly wrong while executing this command...',
                     ephemeral: true
