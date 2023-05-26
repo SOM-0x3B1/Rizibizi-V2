@@ -1,6 +1,9 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('@discordjs/builders');
 const { QueryType } = require('discord-player');
 const { useMasterPlayer } = require('discord-player');
+const { getThumb } = require('../../getThumb.js');
+
+
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -67,9 +70,10 @@ module.exports = {
                 const u_song = u_result.tracks[0];
                 await queue.addTrack(u_song);
                 embed
+                    .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL({dynamics: true}) })
                     .setDescription(`**[${u_song.title}](${u_song.url})** has been added to the queue.`)
-                    .setThumbnail(u_song.setThumbnail)
-                    .setFooter({ text: `Duration: ${u_song.duration}` });
+                    .setThumbnail(await getThumb(u_song.url, 'small'))
+                    .setFooter({text: `${u_song.duration} - ${u_song.url}`})
                 break;
 
             case 'url_playlist':
@@ -84,15 +88,16 @@ module.exports = {
 
                 const playlist = p_result.playlist;
                 embed
+                    .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL({dynamics: true}) })
                     .setDescription(`**${p_result.tracks.length} songs from [${playlist.title}](${playlist.url})** has been added to the queue.`)
-                    .setThumbnail(playlist.setThumbnail);
+                    .setThumbnail(await getThumb(p_result.tracks[0].url, 'small'));
                 break;
 
             case 'search':
                 let searchterms = interaction.options.getString('searchterms');
                 const s_result = await player.search(searchterms, {
                     requestedBy: interaction.user,
-                    searchEngine: QueryType.YOUTUBE_VIDEO
+                    searchEngine: QueryType.YOUTUBE
                 });
                 if (!s_result.hasTracks())
                     return interaction.reply('No results!');
@@ -102,9 +107,10 @@ module.exports = {
                 await queue.addTrack(s_song);
 
                 embed
+                    .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL({dynamics: true}) })
                     .setDescription(`**[${s_song.title}](${s_song.url})** has been added to the queue.`)
-                    .setThumbnail(s_song.setThumbnail)
-                    .setFooter({ text: `Duration: ${s_song.duration}` });
+                    .setThumbnail(await getThumb(s_song.url, 'small'))
+                    .setFooter({text: `${s_song.duration} - ${s_song.url}`})
                 break;
         }
 
