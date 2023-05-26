@@ -58,7 +58,6 @@ module.exports = {
 
         switch (subcommand) {
             case 'url':
-                let url = interaction.options.getString('url', true);
                 const u_result = await player.search(url, {
                     requestedBy: interaction.user,
                     searchEngine: QueryType.YOUTUBE_VIDEO
@@ -79,11 +78,12 @@ module.exports = {
                     requestedBy: interaction.user,
                     searchEngine: QueryType.YOUTUBE_PLAYLIST
                 });
-                if (p_result.tracks.length === 0)
+                if (!p_result.hasTracks())
                     return interaction.reply('No results!');
 
+                await queue.addTrack(p_result.tracks);
+
                 const playlist = p_result.playlist;
-                await queue.addTrack(result.tracks);
                 embed
                     .setDescription(`**${p_result.tracks.length} songs from [${playlist.title}](${playlist.url})** has been added to the queue.`)
                     .setThumbnail(playlist.setThumbnail);
@@ -95,11 +95,13 @@ module.exports = {
                     requestedBy: interaction.user,
                     searchEngine: QueryType.AUTO
                 });
-                if (u_result.tracks.length === 0)
+                if (!s_result.hasTracks())
                     return interaction.reply('No results!');
 
-                const s_song = u_result.tracks[0];
+                const s_song = s_result.tracks[0];
+
                 await queue.addTrack(s_song);
+
                 embed
                     .setDescription(`**[${s_song.title}](${s_song.url})** has been added to the queue.`)
                     .setThumbnail(s_song.setThumbnail)
