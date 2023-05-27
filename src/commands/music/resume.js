@@ -3,17 +3,19 @@ const { useMasterPlayer } = require('discord-player');
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('quit')
-        .setDescription('Disconnects the bot and clears the queue!'),
+        .setName('resume')
+        .setDescription('Resumes playing'),
     async execute(interaction, client) {
         const player = useMasterPlayer();
 
         const queue = player.nodes.get(interaction.guildId);
 
-        if(!queue)
+        if(!queue || !queue.node.isPlaying())
             return await interaction.reply('There are no songs in the queue.');
+        else if(!queue.node.isPaused())
+            return await interaction.reply('The queue is not paused.');
 
-        queue.delete();
-        await interaction.reply('Exiting...');
+        queue.node.setPaused(false)
+        await interaction.reply(`Resumed **${queue.currentTrack.title}**.`);
     }
 }
