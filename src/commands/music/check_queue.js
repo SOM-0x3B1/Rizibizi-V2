@@ -38,7 +38,8 @@ module.exports = {
                 new EmbedBuilder()
                     .setTitle('Queue')
                     .setDescription(`**Currently playing**\n` +
-                        (currentSong ? `[${currentSong.duration}] ${currentSong.title} -- <@${currentSong.requestedBy.id}>` : 'none') + `\n\n**In queue**\n${queueString}`)
+                        (currentSong ? `[${currentSong.duration}] ${currentSong.title} ${queue.repeatMode == 1 ? ':repeat:' : ''} -- <@${currentSong.requestedBy.id}>` : 'none') +
+                         `\n\n**In queue** ${queue.repeatMode == 2 ? ':repeat:' : ''}\n${queueString}\nNext song:`)
                     .setFooter({
                         text: `Page ${page + 1} of ${totalPages === 0 ? 1 : totalPages}`            
                     })
