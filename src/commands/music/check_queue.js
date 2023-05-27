@@ -1,6 +1,9 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder } = require('discord.js');
 const { useMasterPlayer } = require('discord-player');
 const { getThumb } = require('../../getThumb.js');
+const { createCanvas, loadImage } = require('canvas')
+const { drawStrokedText } = require('../../drawStrokedText.js');
+
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -28,23 +31,46 @@ module.exports = {
         let queueString = '';
         for (let i = page * 10; i < page * 10 + 10 && i < queue.tracks.size; i++) {
             let song = queue.tracks.data[i];
-            queueString += `**${i + 1}.** [${song.duration}] ${song.title} -- <@${song.requestedBy.id}>\n`;
+            queueString += `**${i + 1}.** ${song.title} -- <@${song.requestedBy.id}>\n`;
         }
 
         const currentSong = queue.currentTrack;
+
+
+        const countOfQueueImages = queue.tracks.size > 3 ? 3 : queue.tracks.size;
+        const canvas = await createCanvas(120 * (countOfQueueImages + 1), 90);
+        const ctx = await canvas.getContext('2d');
+        ctx.font = 'bold 18px Sans';
+        ctx.strokeStyle = 'rgba(0,0,0,255)';
+        ctx.fillStyle = 'rgba(255,255,255,255)';
+
+        const currentImage = await loadImage(await getThumb(currentSong.url, 'small'));
+        await ctx.drawImage(currentImage, 0, 0, 120, 90);
+        await drawStrokedText(ctx, '0.', 2, 20);
+
+        for (let i = 0; i < countOfQueueImages; i++) {
+            const queueImage = await loadImage(await getThumb(queue.tracks.data[i].url, 'small'));
+            await ctx.drawImage(queueImage, 120 * (i + 1), 0, 120, 90);
+            await drawStrokedText(ctx, `${i + 1}.`, 120 * (i + 1) + 2, 20);
+        }
+        //const attachment = new AttachmentBuilder(canvas.toBuffer(), 'img.png');
 
         await interaction.reply({
             embeds: [
                 new EmbedBuilder()
                     .setTitle('Queue')
                     .setDescription(`**Currently playing**\n` +
-                        (currentSong ? `[${currentSong.duration}] ${currentSong.title} ${queue.repeatMode == 1 ? ':repeat:' : ''} -- <@${currentSong.requestedBy.id}>` : 'none') +
-                         `\n\n**In queue** ${queue.repeatMode == 2 ? ':repeat:' : ''}\n${queueString}\nNext song:`)
+                        (currentSong ? `${currentSong.title} ${queue.repeatMode == 1 ? ':repeat:' : ''} -- <@${currentSong.requestedBy.id}>` : 'none') +
+                        `\n\n**In queue** ${queue.repeatMode == 2 ? ':repeat:' : ''}\n${queueString}`)
                     .setFooter({
-                        text: `Page ${page + 1} of ${totalPages === 0 ? 1 : totalPages}`            
+                        text: `Page ${page + 1} of ${totalPages === 0 ? 1 : totalPages}`
                     })
-                    .setImage(await getThumb(queue.tracks.size > 1 ? queue.tracks.data[0].url : currentSong.url, 'small'))
-            ]
+                    .setImage('attachment://img.png')
+            ],
+            files: [{
+                attachment: await canvas.toBuffer('image/png'),
+                name: 'img.png'
+            }]
         });
     }
 }
