@@ -121,7 +121,7 @@ module.exports = {
                 break;
         }
 
-        if (!queue.node.isPlaying())
+        if (!queue.currentTrack)
             await queue.node.play();
 
         if (shouldLoop) {            
