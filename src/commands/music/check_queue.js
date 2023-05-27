@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('@discordjs/builders');
 const { useMasterPlayer } = require('discord-player');
+const { getThumb } = require('../../getThumb.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -36,11 +37,12 @@ module.exports = {
             embeds: [
                 new EmbedBuilder()
                     .setTitle('Queue')
-                    .setDescription(`**Currently Playing**\n` +
+                    .setDescription(`**Currently playing**\n` +
                         (currentSong ? `[${currentSong.duration}] ${currentSong.title} -- <@${currentSong.requestedBy.id}>` : 'none') + `\n\n**In queue**\n${queueString}`)
                     .setFooter({
-                        text: `Page ${page + 1} of ${totalPages === 0 ? 1 : totalPages}`
+                        text: `Page ${page + 1} of ${totalPages === 0 ? 1 : totalPages}`            
                     })
+                    .setImage(await getThumb(queue.tracks.size > 1 ? queue.tracks.data[0].url : currentSong.url, 'small'))
             ]
         });
     }

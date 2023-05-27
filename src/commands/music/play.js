@@ -3,8 +3,6 @@ const { QueryType } = require('discord-player');
 const { useMasterPlayer } = require('discord-player');
 const { getThumb } = require('../../getThumb.js');
 
-
-
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('play')
