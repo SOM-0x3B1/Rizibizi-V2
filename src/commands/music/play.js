@@ -48,10 +48,10 @@ module.exports = {
             await queue.connect(interaction.member.voice.channel);
 
         let embed = new EmbedBuilder();
-    
+
         const shouldLoop = interaction.options.getBoolean('loop');
         const shouldShuffle = interaction.options.getBoolean('shuffle');
-       
+
         let type = QueryType.YOUTUBE;
         let typeNumber = interaction.options.getNumber('specify');
         if (typeNumber)
@@ -65,7 +65,6 @@ module.exports = {
         if (!result.hasTracks())
             return interaction.reply('No results!');
 
-        
 
         if (!result.hasPlaylist()) {
             const song = result.tracks[0];
@@ -84,16 +83,16 @@ module.exports = {
                 .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL({ dynamics: true }) })
                 .setDescription(`**${result.tracks.length} songs from [${playlist.title}](${playlist.url})** has been added to the queue.`)
                 .setThumbnail(await getThumb(result.tracks[0].url, 'small'));
+
+            if (shouldShuffle)
+                queue.tracks.shuffle();
         }
 
         if (!queue.node.isPlaying())
             await queue.node.play();
 
-        if (shouldShuffle)
-            queue.tracks.shuffle();
-
         if (shouldLoop) {
-            await looper.execute(interaction, client, subcommand == 'url_playlist' ? 2 : 1);
+            await looper.execute(interaction, client, result.hasPlaylist() ? 2 : 1);
             await interaction.followUp({ embeds: [embed] })
         }
         else
