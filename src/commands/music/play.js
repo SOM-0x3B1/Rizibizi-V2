@@ -25,7 +25,7 @@ module.exports = {
         const player = useMasterPlayer()
 
         if (!interaction.member.voice.channel)
-            return interaction.reply('You need to be in a VC to use this command');
+            return interaction.reply(':warning: You need to be in a VC to use this command.');
 
         let queue = player.nodes.get(interaction.guildId);
         if (!queue) {
@@ -63,7 +63,7 @@ module.exports = {
             searchEngine: type
         });
         if (!result.hasTracks())
-            return interaction.reply('No results!');
+            return interaction.reply('No results.');
 
 
         if (!result.hasPlaylist()) {

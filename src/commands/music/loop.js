@@ -23,7 +23,7 @@ module.exports = {
         let modeName = ['off', 'music loop', 'queue loop', 'autoplay'][mode];
 
         if (!queue || (!queue.currentTrack && !externalMode))
-            return await interaction.reply('There are no songs in the queue!');
+            return await interaction.reply(':warning: There are no songs in the queue.');
 
         queue.setRepeatMode(mode);
         if (mode != 0)

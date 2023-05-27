@@ -14,14 +14,14 @@ module.exports = {
         const player = useMasterPlayer();
         const queue = player.nodes.get(interaction.guildId);
         if (!queue || !queue.currentTrack)
-            return await interaction.reply('There are no songs in the queue.');
+            return await interaction.reply(':warning: There are no songs in the queue.');
 
         const totalPages = Math.ceil(queue.tracks.size / 10);
 
         const page = (interaction.options._hoistedOptions.length > 0 ? interaction.options.getNumber('page') : 1) - 1;
 
-        if (page > totalPages)
-            return await interaction.reply(`Invalid page! There are only a total of ${totalPages === 0 ? 1 : totalPages} pages of songs.`);
+        if (page > totalPages - 1)
+            return await interaction.reply(`:warning: Invalid page. There are only a total of ${totalPages === 0 ? 1 : totalPages} pages in the queue.`);
 
         /*console.log(queue.tracks);
     const queueString = queue.tracks.slice(page * 10, page * 10 + 10).map((song, i) => {

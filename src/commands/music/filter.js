@@ -19,7 +19,7 @@ module.exports = {
         const filter = interaction.options.getString('filter');
 
         if (!queue || !queue.currentTrack)
-            return await interaction.reply('There are no songs in the queue!');
+            return await interaction.reply(':warning: There are no songs in the queue.');
 
         await queue.filters.ffmpeg.toggle([filter]);
         await interaction.reply(`:gear: Toggled **${filter}** filter on the queue.`);

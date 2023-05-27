@@ -15,7 +15,7 @@ module.exports = {
                 console.error(err);
                 try {
                     await interaction.reply({
-                        content: 'Something went horribly wrong while executing this command...',
+                        content: ':warning: Something went horribly wrong while executing this command... :warning:',
                         ephemeral: true
                     });
                 } catch (err2) {

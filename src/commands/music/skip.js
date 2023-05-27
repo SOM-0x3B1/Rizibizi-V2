@@ -11,7 +11,7 @@ module.exports = {
         const queue = player.nodes.get(interaction.guildId);
 
         if (!queue || !queue.currentTrack)
-            return await interaction.reply('There are no songs in the queue!');
+            return await interaction.reply(':warning: There are no songs in the queue.');
 
         const skippedName = queue.currentTrack.title;
         queue.node.skip();
