@@ -9,7 +9,7 @@ module.exports = {
     async execute(interaction, client) {
         const player = useMasterPlayer();
         const queue = player.nodes.get(interaction.guildId);
-        if (!queue || !queue.node.isPlaying)
+        if (!queue || !queue.node.isPlaying())
             return await interaction.reply('There are no songs in the queue.');
 
         const totalPages = Math.ceil(queue.tracks.size / 10);
@@ -37,7 +37,7 @@ module.exports = {
                 new EmbedBuilder()
                     .setTitle('Queue')
                     .setDescription(`**Currently Playing**\n` +
-                        (currentSong ? `[${currentSong.duration}] ${currentSong.title} -- <@${currentSong.requestedBy.id}>` : 'none') + `\n\n**Queue**\n${queueString}`)
+                        (currentSong ? `[${currentSong.duration}] ${currentSong.title} -- <@${currentSong.requestedBy.id}>` : 'none') + `\n\n**In queue**\n${queueString}`)
                     .setFooter({
                         text: `Page ${page + 1} of ${totalPages === 0 ? 1 : totalPages}`
                     })
