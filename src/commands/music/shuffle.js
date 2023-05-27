@@ -14,6 +14,6 @@ module.exports = {
             return await interaction.reply('There are no songs in the queue!');
 
         queue.tracks.shuffle();
-        await interaction.reply(`The queue of **${queue.tracks.size}** songs have been shuffled.`);
+        await interaction.reply(`:twisted_rightwards_arrows: The queue of **${queue.tracks.size}** songs have been shuffled.`);
     }
 }

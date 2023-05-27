@@ -14,6 +14,6 @@ module.exports = {
             return await interaction.reply('There are no songs in the queue.');
 
         queue.clear();
-        await interaction.reply('Queue cleared.');
+        await interaction.reply(':cl: Queue cleared.');
     }
 }

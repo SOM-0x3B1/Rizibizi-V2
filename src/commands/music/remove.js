@@ -20,6 +20,6 @@ module.exports = {
 
         const removedName = queue.tracks.data[trackNumber - 1].title; 
         queue.removeTrack(trackNumber - 1); //index 0 is the currently playing song
-        await interaction.reply(`Removed **${removedName}** at index ${trackNumber}.`);
+        await interaction.reply(`:put_litter_in_its_place: Removed **${removedName}** at index ${trackNumber}.`);
     }
 }

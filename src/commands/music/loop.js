@@ -27,8 +27,8 @@ module.exports = {
 
         queue.setRepeatMode(mode);
         if (mode != 0)
-            await interaction.reply(`Enabled **${modeName}**.`);
+            await interaction.reply(`:repeat: Enabled **${modeName}**.`);
         else
-            await interaction.reply(`Disabled looping.`);
+            await interaction.reply(`:repeat: Disabled looping.`);
     }
 }

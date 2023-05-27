@@ -22,6 +22,6 @@ module.exports = {
             return await interaction.reply('There are no songs in the queue!');
 
         await queue.filters.ffmpeg.toggle([filter]);
-        await interaction.reply(`Toggled **${filter}** filter on the queue.`);
+        await interaction.reply(`:gear: Toggled **${filter}** filter on the queue.`);
     }
 }

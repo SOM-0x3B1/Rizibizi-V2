@@ -16,6 +16,6 @@ module.exports = {
             return await interaction.reply('The queue is already paused.');
 
         queue.node.setPaused(true)
-        await interaction.reply(`Paused **${queue.currentTrack.title}**.`);
+        await interaction.reply(`:pause_button: Paused **${queue.currentTrack.title}**.`);
     }
 }

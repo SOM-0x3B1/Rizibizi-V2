@@ -14,6 +14,6 @@ module.exports = {
             return await interaction.reply('There are no songs in the queue.');
 
         queue.delete();
-        await interaction.reply('Exiting...');
+        await interaction.reply(':wave: Exiting...');
     }
 }

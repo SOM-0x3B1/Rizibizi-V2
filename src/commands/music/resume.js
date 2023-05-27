@@ -16,6 +16,6 @@ module.exports = {
             return await interaction.reply('The queue is not paused.');
 
         queue.node.setPaused(false)
-        await interaction.reply(`Resumed **${queue.currentTrack.title}**.`);
+        await interaction.reply(`:arrow_forward: Resumed **${queue.currentTrack.title}**.`);
     }
 }

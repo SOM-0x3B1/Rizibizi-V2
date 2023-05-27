@@ -15,6 +15,6 @@ module.exports = {
 
         const skippedName = queue.currentTrack.title;
         queue.node.skip();
-        await interaction.reply(`Skipped **${skippedName}**.`);
+        await interaction.reply(`:track_next: Skipped **${skippedName}**.`);
     }
 }
