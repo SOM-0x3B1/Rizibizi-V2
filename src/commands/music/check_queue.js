@@ -31,7 +31,7 @@ module.exports = {
         let queueString = '';
         for (let i = page * 10; i < page * 10 + 10 && i < queue.tracks.size; i++) {
             let song = queue.tracks.data[i];
-            queueString += `**${i + 1}.** ${song.title}\n`;
+            queueString += `**${i + 1}.** [${song.title}](${song.url})\n`;
         }
 
         const currentSong = queue.currentTrack;
@@ -60,7 +60,7 @@ module.exports = {
                 new EmbedBuilder()
                     .setTitle('Queue')
                     .setDescription(`**Currently playing**\n` +
-                        (currentSong ? `${currentSong.title} ${queue.repeatMode == 1 ? ':repeat:' : ''}` : 'none') +
+                        (currentSong ? `[${currentSong.title}](${currentSong.url}) ${queue.repeatMode == 1 ? ':repeat:' : ''}` : 'none') +
                         `\n\n**In queue** ${queue.repeatMode == 2 ? ':repeat:' : ''}\n${queueString}`)
                     .setFooter({
                         text: `Page ${page + 1} of ${totalPages === 0 ? 1 : totalPages}`
