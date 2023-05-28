@@ -82,7 +82,8 @@ module.exports = {
             embed
                 .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL({ dynamics: true }) })
                 .setDescription(`**${result.tracks.length} songs from [${playlist.title}](${playlist.url})** has been added to the queue.`)
-                .setThumbnail(await getThumb(result.tracks[0].url, 'small'));
+                .setThumbnail(await getThumb(result.tracks[0].url, 'small'))
+                .setFooter({text: `${playlist.durationFormatted} - ${playlist.url}`});
 
             if (shouldShuffle)
                 queue.tracks.shuffle();

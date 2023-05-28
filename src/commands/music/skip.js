@@ -14,7 +14,7 @@ module.exports = {
             return await interaction.reply(':warning: There are no songs in the queue.');
 
         const skippedName = queue.currentTrack.title;
-        queue.node.skip();
+        await queue.node.skip();
         await interaction.reply(`:track_next: Skipped **${skippedName}**.`);
     }
 }

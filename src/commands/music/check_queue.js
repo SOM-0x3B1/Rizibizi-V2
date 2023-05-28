@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder } = require('@discordjs/builders');
 const { useMasterPlayer } = require('discord-player');
 const { getThumb } = require('../../getThumb.js');
 const { createCanvas, loadImage } = require('canvas')
@@ -31,7 +31,7 @@ module.exports = {
         let queueString = '';
         for (let i = page * 10; i < page * 10 + 10 && i < queue.tracks.size; i++) {
             let song = queue.tracks.data[i];
-            queueString += `**${i + 1}.** ${song.title} -- <@${song.requestedBy.id}>\n`;
+            queueString += `**${i + 1}.** ${song.title}\n`;
         }
 
         const currentSong = queue.currentTrack;
@@ -46,7 +46,7 @@ module.exports = {
 
         const currentImage = await loadImage(await getThumb(currentSong.url, 'small'));
         await ctx.drawImage(currentImage, 0, 0, 120, 90);
-        await drawStrokedText(ctx, '0.', 2, 20);
+        await drawStrokedText(ctx, '>', 2, 20);
 
         for (let i = 0; i < countOfQueueImages; i++) {
             const queueImage = await loadImage(await getThumb(queue.tracks.data[i].url, 'small'));
@@ -60,7 +60,7 @@ module.exports = {
                 new EmbedBuilder()
                     .setTitle('Queue')
                     .setDescription(`**Currently playing**\n` +
-                        (currentSong ? `${currentSong.title} ${queue.repeatMode == 1 ? ':repeat:' : ''} -- <@${currentSong.requestedBy.id}>` : 'none') +
+                        (currentSong ? `${currentSong.title} ${queue.repeatMode == 1 ? ':repeat:' : ''}` : 'none') +
                         `\n\n**In queue** ${queue.repeatMode == 2 ? ':repeat:' : ''}\n${queueString}`)
                     .setFooter({
                         text: `Page ${page + 1} of ${totalPages === 0 ? 1 : totalPages}`
