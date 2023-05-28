@@ -4,8 +4,8 @@ const { useMasterPlayer } = require('discord-player');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('remove')
-        .setDescription('Removes a song from the queue (/check_queue to see indexes)')
-        .addNumberOption((option) => option.setName("index").setDescription('Index of the song (starting from 1)').setMinValue(1)),
+        .setDescription('Removes the last, or a selected song from the queue (/check_queue to see indexes)')
+        .addNumberOption((option) => option.setName("index").setDescription('Index of the song (starting from 1). Default is the last added song.').setMinValue(1)),
     async execute(interaction, client) {
         const player = useMasterPlayer();
 
@@ -14,7 +14,7 @@ module.exports = {
         if (!queue || !queue.currentTrack)
             return await interaction.reply(':warning: There are no songs in the queue.');
 
-        const trackNumber = (interaction.options._hoistedOptions.length > 0 ? interaction.options.getNumber('index') : 1);
+        const trackNumber = (interaction.options._hoistedOptions.length > 0 ? interaction.options.getNumber('index') : queue.tracks.size);
         if(trackNumber > queue.tracks.size)
             return await interaction.reply(':warning: Index out of range.');
 

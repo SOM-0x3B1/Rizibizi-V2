@@ -10,14 +10,14 @@ module.exports = {
         .setName('play')
         .setDescription('Load music from YouTube')
         .addStringOption((option) => option.setName('query').setDescription('The query of the song').setRequired(true))
-        .addNumberOption(option =>
+        .addStringOption(option =>
             option.setName('specify')
                 .setDescription('The search engine you want to use')
                 .addChoices(
-                    { name: 'YouTube auto', value: 0 },
-                    { name: 'YouTube video URL', value: 1 },
-                    { name: 'YouTube playlist URL', value: 2 },
-                    { name: 'YouTube search', value: 3 },
+                    { name: 'YouTube auto', value: 'youtube' },
+                    { name: 'YouTube video URL', value: 'youtubeVideo' },
+                    { name: 'YouTube playlist URL', value: 'youtubePlaylist' },
+                    { name: 'YouTube search', value: 'youtubeSearch' },
                 ))
         .addBooleanOption((option) => option.setName('loop').setDescription('Should I loop this song?'))
         .addBooleanOption((option) => option.setName('shuffle').setDescription('Should I shuffle this song?')),
@@ -52,10 +52,7 @@ module.exports = {
         const shouldLoop = interaction.options.getBoolean('loop');
         const shouldShuffle = interaction.options.getBoolean('shuffle');
 
-        let type = QueryType.YOUTUBE;
-        let typeNumber = interaction.options.getNumber('specify');
-        if (typeNumber)
-            type = [QueryType.YOUTUBE, QueryType.YOUTUBE_VIDEO, QueryType.YOUTUBE_PLAYLIST, QueryType.YOUTUBE_SEARCH][typeNumber];
+        let type = interaction.options.getString('specify') || 'youtube';
 
         const query = interaction.options.getString('query');
         const result = await player.search(query, {
