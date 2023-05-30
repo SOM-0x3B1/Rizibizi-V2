@@ -2,7 +2,6 @@ const { SlashCommandBuilder, EmbedBuilder } = require('@discordjs/builders');
 const { QueryType } = require('discord-player');
 const { useMasterPlayer } = require('discord-player');
 const { getThumb } = require('../../getThumb.js');
-
 const looper = require('./loop.js');
 
 module.exports = {
@@ -52,7 +51,7 @@ module.exports = {
         const shouldLoop = interaction.options.getBoolean('loop');
         const shouldShuffle = interaction.options.getBoolean('shuffle');
 
-        let type = interaction.options.getString('specify') || 'youtube';
+        let type = interaction.options.getString('specify') ?? 'youtube'; // defaults to 'youtube', which is the auto option for
 
         const query = interaction.options.getString('query');
         const result = await player.search(query, {

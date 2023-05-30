@@ -7,7 +7,6 @@ module.exports = {
         .setDescription('Disconnects the bot and clears the queue!'),
     async execute(interaction, client) {
         const player = useMasterPlayer();
-
         const queue = player.nodes.get(interaction.guildId);
 
         if(!queue)

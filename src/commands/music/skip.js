@@ -7,7 +7,6 @@ module.exports = {
         .setDescription('Skips the current song'),
     async execute(interaction, client) {
         const player = useMasterPlayer();
-
         const queue = player.nodes.get(interaction.guildId);
 
         if (!queue || !queue.currentTrack)

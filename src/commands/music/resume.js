@@ -7,7 +7,6 @@ module.exports = {
         .setDescription('Resumes playing'),
     async execute(interaction, client) {
         const player = useMasterPlayer();
-
         const queue = player.nodes.get(interaction.guildId);
 
         if(!queue || !queue.currentTrack)
@@ -15,7 +14,7 @@ module.exports = {
         else if(!queue.node.isPaused())
             return await interaction.reply('The queue is not paused.');
 
-        queue.node.setPaused(false)
+        queue.node.setPaused(false);
         await interaction.reply(`:arrow_forward: Resumed **${queue.currentTrack.title}**.`);
     }
 }

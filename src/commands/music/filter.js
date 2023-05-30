@@ -16,10 +16,11 @@ module.exports = {
     async execute(interaction, client) {
         const player = useMasterPlayer();
         const queue = player.nodes.get(interaction.guildId);
-        const filter = interaction.options.getString('filter');
 
         if (!queue || !queue.currentTrack)
             return await interaction.reply(':warning: There are no songs in the queue.');
+
+        const filter = interaction.options.getString('filter');
 
         await queue.filters.ffmpeg.toggle([filter]);
         await interaction.reply(`:gear: Toggled **${filter}** filter on the queue.`);

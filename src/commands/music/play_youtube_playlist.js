@@ -2,7 +2,6 @@ const { SlashCommandBuilder, EmbedBuilder } = require('@discordjs/builders');
 const { QueryType } = require('discord-player');
 const { useMasterPlayer } = require('discord-player');
 const { getThumb } = require('../../getThumb.js');
-
 const looper = require('./loop.js');
 
 module.exports = {
@@ -13,11 +12,10 @@ module.exports = {
         .addBooleanOption((option) => option.setName('loop').setDescription('Should I loop this playlist?'))
         .addBooleanOption((option) => option.setName('shuffle').setDescription('Should I shuffle this playlist?')),
     async execute(interaction, client) {
-        const player = useMasterPlayer()
-
         if (!interaction.member.voice.channel)
             return interaction.reply(':warning: You need to be in a VC to use this command.');
 
+        const player = useMasterPlayer();
         let queue = player.nodes.get(interaction.guildId);
         if (!queue) {
             queue = await player.nodes.create(interaction.guild, {
@@ -38,7 +36,6 @@ module.exports = {
         if (!queue.connection)
             await queue.connect(interaction.member.voice.channel);
 
-        let embed = new EmbedBuilder();
 
         const shouldLoop = interaction.options.getBoolean('loop');
         const shouldShuffle = interaction.options.getBoolean('shuffle');
@@ -53,7 +50,7 @@ module.exports = {
 
         const playlist = result.playlist;
         await queue.addTrack(playlist);
-        embed
+        const embed = new EmbedBuilder()
             .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL({ dynamics: true }) })
             .setDescription(`**${result.tracks.length} songs from [${playlist.title}](${playlist.url})** has been added to the queue.`)
             .setThumbnail(await getThumb(result.tracks[0].url, 'small'))

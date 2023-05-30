@@ -7,7 +7,6 @@ module.exports = {
         .setDescription('Shows a progressbar'),
     async execute(interaction, client) {
         const player = useMasterPlayer();
-
         const queue = player.nodes.get(interaction.guildId);
 
         if (!queue || !queue.currentTrack)

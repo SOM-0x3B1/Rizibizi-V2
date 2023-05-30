@@ -18,12 +18,12 @@ module.exports = {
     async execute(interaction, client, externalMode) {
         const player = useMasterPlayer();
         const queue = player.nodes.get(interaction.guildId);
-        const mode = externalMode ? externalMode : interaction.options.getNumber('mode');
-
-        let modeName = ['off', 'music loop', 'queue loop', 'autoplay'][mode];
 
         if (!queue || (!queue.currentTrack && !externalMode))
             return await interaction.reply(':warning: There are no songs in the queue.');
+
+        const mode = externalMode ?? interaction.options.getNumber('mode');
+        let modeName = ['off', 'music loop', 'queue loop', 'autoplay'][mode];
 
         queue.setRepeatMode(mode);
         if (mode != 0)

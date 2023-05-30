@@ -17,7 +17,6 @@ module.exports = {
         if (!queue || !queue.currentTrack)
             return await interaction.reply(':warning: There are no songs in the queue.');
 
-
         const time = interaction.options.getString('time');
         let seconds = 0;
         if (time.includes(':')) {
@@ -38,7 +37,6 @@ module.exports = {
         }
 
         await queue.node.seek(90);
-
         await interaction.reply(`:fast_forward: Jumped to **${time}**.`);
     }
 }

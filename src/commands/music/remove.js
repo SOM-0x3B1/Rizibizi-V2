@@ -8,13 +8,12 @@ module.exports = {
         .addNumberOption((option) => option.setName("index").setDescription('Index of the song (starting from 1). Default is the last added song.').setMinValue(1)),
     async execute(interaction, client) {
         const player = useMasterPlayer();
-
         const queue = player.nodes.get(interaction.guildId);
 
         if (!queue || !queue.currentTrack)
             return await interaction.reply(':warning: There are no songs in the queue.');
 
-        const trackNumber = (interaction.options._hoistedOptions.length > 0 ? interaction.options.getNumber('index') : queue.tracks.size);
+        const trackNumber = interaction.options.getNumber('index') ?? queue.tracks.size;
         if(trackNumber > queue.tracks.size)
             return await interaction.reply(':warning: Index out of range.');
 
