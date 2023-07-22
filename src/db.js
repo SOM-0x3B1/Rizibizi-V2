@@ -10,5 +10,9 @@ const pool = mariadb.createPool({
 });
 
 module.exports = {
-    dbPool: pool
+    dbPool: pool,
+    async valueExists(conn, column, value){ // column is always hardcoded
+        const res = await conn.query(`SELECT COUNT(*) AS count FROM playlist WHERE ${column}=?`, [value]);
+        return res[0].count > 0;
+    }
 }
