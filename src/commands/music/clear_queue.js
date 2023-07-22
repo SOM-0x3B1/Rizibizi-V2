@@ -3,7 +3,7 @@ const { useMainPlayer } = require('discord-player');
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('clear')
+        .setName('clear_queue')
         .setDescription('Clears the queue.'),
     async execute(interaction, client) {
         const player = useMainPlayer();

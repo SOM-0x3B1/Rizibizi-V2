@@ -6,7 +6,7 @@ const looper = require('./loop.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('play')
+        .setName('play_youtube')
         .setDescription('Load music from YouTube')
         .addStringOption((option) => option.setName('query').setDescription('The query of the song').setRequired(true))
         .addStringOption(option =>

@@ -3,7 +3,7 @@ const { useMainPlayer } = require('discord-player');
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('filter')
+        .setName('effect')
         .setDescription('Toggles an audio filter')
         .addStringOption(option =>
             option.setName('filter')
@@ -23,6 +23,6 @@ module.exports = {
         const filter = interaction.options.getString('filter');
 
         await queue.filters.ffmpeg.toggle([filter]);
-        await interaction.reply(`:fire: Toggled **${filter}** filter on the queue.`);
+        await interaction.reply(`:fire: Toggled **${filter}** effect on the queue.`);
     }
 }
