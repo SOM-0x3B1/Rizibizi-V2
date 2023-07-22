@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { useMasterPlayer } = require('discord-player');
+const { useMainPlayer } = require('discord-player');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -7,7 +7,7 @@ module.exports = {
         .setDescription('Removes the last, or a selected song from the queue (/check_queue to see indexes)')
         .addNumberOption((option) => option.setName("index").setDescription('Index of the song (starting from 1). Default is the last added song.').setMinValue(1)),
     async execute(interaction, client) {
-        const player = useMasterPlayer();
+        const player = useMainPlayer();
         const queue = player.nodes.get(interaction.guildId);
 
         if (!queue || !queue.currentTrack)

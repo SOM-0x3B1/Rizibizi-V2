@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('@discordjs/builders');
-const { QueryType } = require('discord-player');
-const { useMasterPlayer } = require('discord-player');
+//const { QueryType } = require('discord-player');
+const { useMainPlayer } = require('discord-player');
 const { getThumb } = require('../../getThumb.js');
 const looper = require('./loop.js');
 
@@ -21,7 +21,7 @@ module.exports = {
         .addBooleanOption((option) => option.setName('loop').setDescription('Should I loop this song?'))
         .addBooleanOption((option) => option.setName('shuffle').setDescription('Should I shuffle this song?')),
     async execute(interaction, client) {
-        const player = useMasterPlayer()
+        const player = useMainPlayer()
 
         if (!interaction.member.voice.channel)
             return interaction.reply(':warning: You need to be in a VC to use this command.');
@@ -79,7 +79,7 @@ module.exports = {
                 .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL({ dynamics: true }) })
                 .setDescription(`**${result.tracks.length} songs from [${playlist.title}](${playlist.url})** has been added to the queue.`)
                 .setThumbnail(await getThumb(result.tracks[0].url, 'small'))
-                .setFooter({text: `${playlist.durationFormatted} - ${playlist.url}`});
+                .setFooter({ text: `${playlist.durationFormatted} - ${playlist.url}` });
 
             if (shouldShuffle)
                 queue.tracks.shuffle();
@@ -93,6 +93,9 @@ module.exports = {
             await interaction.followUp({ embeds: [embed] })
         }
         else
-            await interaction.reply({ embeds: [embed] })
+            try {
+                await interaction.reply({ embeds: [embed] })
+            }
+            catch{}
     }
 }

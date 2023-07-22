@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { useMasterPlayer } = require('discord-player');
+const { useMainPlayer } = require('discord-player');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -16,7 +16,7 @@ module.exports = {
                     { name: 'autoplay related songs', value: 3 }
                 )),
     async execute(interaction, client, externalMode) {
-        const player = useMasterPlayer();
+        const player = useMainPlayer();
         const queue = player.nodes.get(interaction.guildId);
 
         if (!queue || (!queue.currentTrack && !externalMode))

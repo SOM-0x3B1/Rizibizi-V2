@@ -1,12 +1,12 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { useMasterPlayer } = require('discord-player');
+const { useMainPlayer } = require('discord-player');
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('quit')
         .setDescription('Disconnects the bot and clears the queue!'),
     async execute(interaction, client) {
-        const player = useMasterPlayer();
+        const player = useMainPlayer();
         const queue = player.nodes.get(interaction.guildId);
 
         if(!queue)

@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('@discordjs/builders');
 const { QueryType } = require('discord-player');
-const { useMasterPlayer } = require('discord-player');
+const { useMainPlayer } = require('discord-player');
 const { getThumb } = require('../../getThumb.js');
 const looper = require('./loop.js');
 
@@ -15,7 +15,7 @@ module.exports = {
         if (!interaction.member.voice.channel)
             return interaction.reply(':warning: You need to be in a VC to use this command.');
 
-        const player = useMasterPlayer();
+        const player = useMainPlayer();
         let queue = player.nodes.get(interaction.guildId);
         if (!queue) {
             queue = await player.nodes.create(interaction.guild, {

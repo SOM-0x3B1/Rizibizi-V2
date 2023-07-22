@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('@discordjs/builders');
-const { useMasterPlayer } = require('discord-player');
+const { useMainPlayer } = require('discord-player');
 const { getThumb } = require('../../getThumb.js');
 const { createCanvas, loadImage } = require('canvas')
 const { drawStrokedText } = require('../../drawStrokedText.js');
@@ -10,7 +10,7 @@ module.exports = {
         .setDescription('Displays the current song queue')
         .addNumberOption((option) => option.setName("page").setDescription('Page number of queue').setMinValue(1)),
     async execute(interaction, client) {
-        const player = useMasterPlayer();
+        const player = useMainPlayer();
         const queue = player.nodes.get(interaction.guildId);
 
         if (!queue || !queue.currentTrack)

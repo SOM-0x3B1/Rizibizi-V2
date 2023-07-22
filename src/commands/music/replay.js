@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { useMasterPlayer } = require('discord-player');
+const { useMainPlayer } = require('discord-player');
 const { useHistory } = require("discord-player");
 
 module.exports = {
@@ -7,7 +7,7 @@ module.exports = {
         .setName('replay')
         .setDescription('Plays the previous song'),
     async execute(interaction, client) {
-        const player = useMasterPlayer();
+        const player = useMainPlayer();
         const queue = player.nodes.get(interaction.guildId);
 
         if (queue.repeatMode != 2) {

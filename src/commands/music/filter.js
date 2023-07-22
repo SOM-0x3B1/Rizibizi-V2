@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { useMasterPlayer } = require('discord-player');
+const { useMainPlayer } = require('discord-player');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -14,7 +14,7 @@ module.exports = {
                     { name: 'nightcore', value: 'nightcore' },
                 )),
     async execute(interaction, client) {
-        const player = useMasterPlayer();
+        const player = useMainPlayer();
         const queue = player.nodes.get(interaction.guildId);
 
         if (!queue || !queue.currentTrack)
@@ -23,6 +23,6 @@ module.exports = {
         const filter = interaction.options.getString('filter');
 
         await queue.filters.ffmpeg.toggle([filter]);
-        await interaction.reply(`:gear: Toggled **${filter}** filter on the queue.`);
+        await interaction.reply(`:fire: Toggled **${filter}** filter on the queue.`);
     }
 }
