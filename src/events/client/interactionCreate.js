@@ -45,9 +45,12 @@ module.exports = {
                     const player = useMainPlayer();
                     const queue = player.nodes.get(interaction.guildId);
 
-                    const currentSong = queue.currentTrack;
-                    await conn.query(newSongQuery, [await shortenURL(currentSong.url), id, await urlToType(currentSong.url), 0]);
-                    for (let i = 0; i < queue.tracks.size; i++) {
+                    if (queue) {
+                        const currentSong = queue.currentTrack;
+                        if (currentSong)
+                            await conn.query(newSongQuery, [await shortenURL(currentSong.url), id, await urlToType(currentSong.url), 0]);
+                    }
+                    for (let i = 0; queue && i < queue.tracks.size; i++) {
                         let song = queue.tracks.data[i];
                         await conn.query(newSongQuery, [await shortenURL(song.url), id, await urlToType(song.url), i + 1]);
                     }
