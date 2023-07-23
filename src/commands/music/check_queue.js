@@ -13,7 +13,7 @@ module.exports = {
         const player = useMainPlayer();
         const queue = player.nodes.get(interaction.guildId);
 
-        if (!queue || !queue.currentTrack)
+        if (!queue || !queue.currentTrack || queue.tracks.size === 0)
             return await interaction.reply(':warning: There are no songs in the queue.');
 
         const totalPages = Math.ceil(queue.tracks.size / 10);

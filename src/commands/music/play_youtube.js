@@ -53,7 +53,10 @@ module.exports = {
 
         let type = interaction.options.getString('specify') ?? 'youtube'; // defaults to 'youtube', which is the auto option for
 
-        const query = interaction.options.getString('query');
+        let query = interaction.options.getString('query');
+        if(type == 'youtubePlaylist' && !query.includes('playlist?'))
+            query = 'https://www.youtube.com/playlist?list=' + query.split('=')[2].split('&')[0];
+
         const result = await player.search(query, {
             requestedBy: interaction.user,
             searchEngine: type

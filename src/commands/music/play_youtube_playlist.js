@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('@discordjs/builders');
-const { QueryType } = require('discord-player');
-const { useMainPlayer } = require('discord-player');
+const { QueryType, useMainPlayer } = require('discord-player');
+const { useMasterPlayer } = require('discord-player');
 const { getThumb } = require('../../getThumb.js');
 const looper = require('./loop.js');
 
@@ -40,7 +40,10 @@ module.exports = {
         const shouldLoop = interaction.options.getBoolean('loop');
         const shouldShuffle = interaction.options.getBoolean('shuffle');
 
-        const query = interaction.options.getString('url');
+        let query = interaction.options.getString('url');
+        if(!query.includes('playlist?'))
+            query = 'https://www.youtube.com/playlist?list=' + query.split('=')[2].split('&')[0];
+
         const result = await player.search(query, {
             requestedBy: interaction.user,
             searchEngine: QueryType.YOUTUBE_PLAYLIST
@@ -50,7 +53,9 @@ module.exports = {
 
         const playlist = result.playlist;
         await queue.addTrack(playlist);
-        const embed = new EmbedBuilder()
+        console.log(result);
+
+        let embed = new EmbedBuilder()
             .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL({ dynamics: true }) })
             .setDescription(`**${result.tracks.length} songs from [${playlist.title}](${playlist.url})** has been added to the queue.`)
             .setThumbnail(await getThumb(result.tracks[0].url, 'small'))
