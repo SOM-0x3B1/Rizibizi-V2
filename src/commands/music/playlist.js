@@ -20,13 +20,13 @@ module.exports = {
             subcommand
                 .setName('delete')
                 .setDescription('Deletes a playlist')
-                .addIntegerOption(option => option.setName('id').setDescription('The global ID of the new playlist').setRequired(true)))
+                .addStringOption(option => option.setName('id').setDescription('The global ID of the new playlist').setRequired(true)))
         .addSubcommand(subcommand =>
             subcommand
                 .setName('list')
                 .setDescription('Lists the playlists of this server')
                 .addStringOption(option =>
-                    option.setName('listtype')
+                    option.setName('list_type')
                         .setDescription('Which list do you want to see')
                         .addChoices(
                             { name: 'server_playlists', value: 'server' },
@@ -36,7 +36,21 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('edit')
-                .setDescription('Gives you a URL where you can edit your playlist'))
+                .setDescription('Gives you a URL where you can edit your playlist')
+                .addStringOption(option => option.setName('id').setDescription('The global ID of your playlist').setRequired(true)))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('add')
+                .setDescription('Adds song(s) to a playlist')
+                .addStringOption(option =>
+                    option.setName('add_type')
+                        .setDescription('What do you want to add?')
+                        .addStringOption(option => option.setName('id').setDescription('The global ID of the new playlist').setRequired(true))
+                        .addChoices(
+                            { name: 'current_song', value: 'csong' },
+                            { name: 'queue', value: 'queue' },
+                            { name: 'url', value: 'url' }, // TODO: add other playlist
+                        )).setRequired(true))
         .addSubcommand(subcommand =>
             subcommand
                 .setName('play')
@@ -105,15 +119,29 @@ module.exports = {
                     listString += ` *- ${playlist.editorName}*\n\n`;
                 }
 
-                const embed = new EmbedBuilder()
-                    .setTitle('The list of local playlists')
-                    .setDescription(listString)
-                    .setFooter({ text: `Page ${pageIndex + 1} of ${totalPages === 0 ? 1 : totalPages}` });
+                const embed = new EmbedBuilder();
 
-                await interaction.reply({ embeds: [embed] });
+                if (listType == 'server') {
+                    embed
+                        .setTitle('The list of local playlists')
+                        .setDescription(listString)
+                        .setFooter({ text: `Page ${pageIndex + 1} of ${totalPages === 0 ? 1 : totalPages}` });
+                    await interaction.reply({ embeds: [embed] });
+                }
+                else {
+                    embed
+                        .setTitle('The list of your playlists')
+                        .setDescription(listString)
+                        .setFooter({ text: `Page ${pageIndex + 1} of ${totalPages === 0 ? 1 : totalPages}` });
+                    await interaction.reply({ embeds: [embed], ephemeral: true });
+                }
                 break;
 
             case 'edit':
+
+                break;
+
+            case 'add':
 
                 break;
 
