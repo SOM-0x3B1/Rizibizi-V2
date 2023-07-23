@@ -25,6 +25,13 @@ module.exports = {
             subcommand
                 .setName('list')
                 .setDescription('Lists the playlists of this server')
+                .addStringOption(option =>
+                    option.setName('listtype')
+                        .setDescription('Which list do you want to see')
+                        .addChoices(
+                            { name: 'server_playlists', value: 'server' },
+                            { name: 'my_playlists', value: 'mine' },
+                        ))
                 .addIntegerOption((option) => option.setName("page").setDescription('Page number of playlist list').setMinValue(1)))
         .addSubcommand(subcommand =>
             subcommand
@@ -71,8 +78,14 @@ module.exports = {
 
                 break;
 
-            case 'list':   
-                const playlists = await conn.query("SELECT id, name, description, editorName FROM playlist WHERE guildID = ?", [interaction.guildId]);
+            case 'list':
+                const listType = interaction.options.getString('listtype') ?? 'server';
+                let playlists = [];
+                if (listType == 'server')
+                    playlists = await conn.query("SELECT id, name, description, editorName FROM playlist WHERE guildID = ? ORDER BY name", [interaction.guildId]);
+                else
+                    playlists = await conn.query("SELECT id, name, description, editorName FROM playlist WHERE editorID = ? ORDER BY name", [interaction.user.id]);
+
                 if (playlists.length == 0)
                     return await interaction.reply(`:warning: This server has no playlists yet.`);
 
