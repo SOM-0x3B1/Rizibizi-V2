@@ -61,6 +61,8 @@ module.exports = {
                     ephemeral: true
                 });
             }
+
+            conn.end();
         }
     }
 }
