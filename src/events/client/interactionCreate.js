@@ -35,7 +35,7 @@ module.exports = {
             const playlistDesc = interaction.fields.getTextInputValue('playlistDesc');
 
             const conn = await dbPool.getConnection();
-            if (!await valueExists(conn, 'name', playlistName)) {
+            if (!await valueExists(conn, 'playlist', 'name', playlistName, 'guildID', interaction.guildId)) {
                 const id = crypto.randomBytes(6).toString('hex');
                 const editKey = crypto.randomBytes(8).toString('hex');
                 const values = [id, editKey, playlistName, playlistDesc, interaction.user.id, interaction.guildId, interaction.user.username];
@@ -46,10 +46,10 @@ module.exports = {
                     const queue = player.nodes.get(interaction.guildId);
 
                     const currentSong = queue.currentTrack;
-                    await conn.query(newSongQuery, [currentSong.url, id, urlToType(currentSong.url), 0]);
+                    await conn.query(newSongQuery, [await shortenURL(currentSong.url), id, await urlToType(currentSong.url), 0]);
                     for (let i = 0; i < queue.tracks.size; i++) {
                         let song = queue.tracks.data[i];
-                        await conn.query(newSongQuery, [song.url, id, urlToType(song.url), i + 1]);
+                        await conn.query(newSongQuery, [await shortenURL(song.url), id, await urlToType(song.url), i + 1]);
                     }
                 }
 
@@ -57,12 +57,16 @@ module.exports = {
             }
             else {
                 await interaction.reply({
-                    content: `:warning: A playlist named ${playlistName} already exists.`,
+                    content: `:warning: A playlist named **${playlistName}** already exists in this server.`,
                     ephemeral: true
                 });
             }
         }
     }
+}
+
+async function shortenURL(url) {
+    return url.split('=')[1];
 }
 
 async function urlToType(url) {

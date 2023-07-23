@@ -53,7 +53,6 @@ module.exports = {
 
         const playlist = result.playlist;
         await queue.addTrack(playlist);
-        console.log(result);
 
         let embed = new EmbedBuilder()
             .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL({ dynamics: true }) })
