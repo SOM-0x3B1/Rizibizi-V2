@@ -1,10 +1,10 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('@discordjs/builders');
 const { useMainPlayer } = require('discord-player');
-const { getThumb } = require('../../getThumb.js');
+const { getThumb } = require('../../utility/getThumb.js');
 const { createCanvas, loadImage } = require('canvas')
-const { drawStrokedText } = require('../../drawStrokedText.js');
+const { drawStrokedText } = require('../../utility/drawStrokedText.js');
 const { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
-const { dbPool, valueExists } = require('../../db.js');
+const { dbPool, valueExists } = require('../../utility/db.js');
 
 
 module.exports = {
@@ -42,15 +42,15 @@ module.exports = {
             subcommand
                 .setName('add')
                 .setDescription('Adds song(s) to a playlist')
+                .addStringOption(option => option.setName('id').setDescription('The global ID of the playlist').setRequired(true))
                 .addStringOption(option =>
-                    option.setName('add_type')
-                        .setDescription('What do you want to add?')
-                        .addStringOption(option => option.setName('id').setDescription('The global ID of the new playlist').setRequired(true))
+                    option.setName('add_type').setDescription('What do you want to add to the playlist?').setRequired(true)
                         .addChoices(
                             { name: 'current_song', value: 'csong' },
                             { name: 'queue', value: 'queue' },
-                            { name: 'url', value: 'url' }, // TODO: add other playlist
-                        )).setRequired(true))
+                            { name: 'url', value: 'url' },
+                            { name: 'other_playlist', value: 'other_playlist' },
+                        ).setRequired(true)))
         .addSubcommand(subcommand =>
             subcommand
                 .setName('play')
@@ -89,7 +89,18 @@ module.exports = {
                 break;
 
             case 'delete':
+                const delID = interaction.options.getString('id');
+                const result = await conn.query("SELECT id, name, editorID FROM playlist WHERE id = ?", [delID]);
 
+                if (result.length === 0)
+                    return await interaction.reply(`:warning: The playlist with global ID ${delID} doesn't exists.`);
+                if (result[0].editorID != interaction.user.id)
+                    return await interaction.reply(`:warning: You are not the editor of the playlist called **${result[0].name}** [${delID}].`);
+
+                await conn.query("DELETE FROM playlist WHERE id = ?", [delID]);
+                await conn.query("DELETE FROM song WHERE playlistID = ?", [delID]);
+
+                await interaction.reply(`:wastebasket: Playlist **${result[0].name}** [${delID}] deleted.`);
                 break;
 
             case 'list':
