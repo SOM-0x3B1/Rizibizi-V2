@@ -1,8 +1,8 @@
-const newSongQuery = "INSERT INTO song(url,playlistID,type,position) VALUES (?, ?, ?, ?)";
+const newSongQuery = "INSERT INTO song(url,title,playlistID,type,position) VALUES (?, ?, ?, ?, ?)";
 
 module.exports = {
-    async addNewSongToDB(conn, url, pID, type, pos) {
-        await conn.query(newSongQuery, [url, pID, type, pos]);
+    async addNewSongToDB(conn, title, url, pID, type, pos) {
+        await conn.query(newSongQuery, [url, title, pID, type, pos]);
     },
     async shortenURL(url) {
         if (url.includes('youtu'))

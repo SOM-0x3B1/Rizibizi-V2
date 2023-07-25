@@ -54,9 +54,11 @@ module.exports = {
                             await addNewSongToDB(conn, await shortenURL(song.url), id, await urlToType(song.url), i + 1);
                         }
                     }
+                    await interaction.reply(`:page_with_curl: Playlist named **${playlistName}** created from queue successfully. \n ${queue.tracks.size} songs added. \n Global playlist ID: [**${id}**]`);
                 }
+                else
+                    await interaction.reply(`:page_with_curl: Playlist named **${playlistName}** created successfully. \n Global playlist ID: [**${id}**]`);
 
-                await interaction.reply(`:page_with_curl: Playlist named **${playlistName}** created successfully. \n Global playlist ID: [**${id}**]`);
             }
             else {
                 await interaction.reply({

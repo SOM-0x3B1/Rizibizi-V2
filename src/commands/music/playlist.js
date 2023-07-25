@@ -167,9 +167,12 @@ module.exports = {
 
             case 'add':
                 const addID = interaction.options.getString('id');
+                const addPlaylists = await conn.query("SELECT name FROM playlist WHERE id = ?", [addID]);
 
-                if (!valueExists(conn, 'playlist', 'id', addID))
+                if (addPlaylists.length != 1)
                     return await interaction.reply(`:warning: The playlist with global ID [**${addID}**] does not exist.`);
+
+                const addPlaylistName = addPlaylists[0].name;
 
                 const countOfSongInPlaylist = await conn.query("SELECT Count(*) as count FROM song WHERE playlistID = ?", [addID]);
                 let startIndex = 0;
@@ -182,8 +185,8 @@ module.exports = {
                 switch (interaction.options.getString('add_type')) {
                     case addTypes.CURRENT_SONG:
                         if (queue && queue.currentTrack) {
-                            await addNewSongToDB(conn, await shortenURL(queue.currentTrack.url), addID, await urlToType(queue.currentTrack.url), startIndex);
-                            await interaction.reply(`:bookmark_tabs: Song **${queue.currentTrack.title}** added to [**${addID}**].`);
+                            await addNewSongToDB(conn, queue.currentTrack.title, await shortenURL(queue.currentTrack.url), addID, await urlToType(queue.currentTrack.url), startIndex);
+                            await interaction.reply(`:bookmark_tabs: Song **${queue.currentTrack.title}** added to **${addPlaylistName}** [${addID}].`);
                         }
                         else
                             return await interaction.reply(`:warning: There's no song currently playing.`);
@@ -193,13 +196,13 @@ module.exports = {
                         if (queue && (queue.tracks.size > 0 || queue.currentTrack)) {
                             const currentSong = queue.currentTrack;
                             if (currentSong)
-                                await addNewSongToDB(conn, await shortenURL(currentSong.url), addID, await urlToType(currentSong.url), startIndex);
+                                await addNewSongToDB(conn, queue.currentTrack.title, await shortenURL(currentSong.url), addID, await urlToType(currentSong.url), startIndex);
 
                             for (let i = 0; queue && i < queue.tracks.size; i++) {
                                 let song = queue.tracks.data[i];
-                                await addNewSongToDB(conn, await shortenURL(song.url), addID, await urlToType(song.url), startIndex + i);
+                                await addNewSongToDB(conn, song.title, await shortenURL(song.url), addID, await urlToType(song.url), startIndex + i);
                             }
-                            await interaction.reply(`:bookmark_tabs: Queue added to [**${addID}**].`);
+                            await interaction.reply(`:bookmark_tabs: Queue added to **${addPlaylistName}** [${addID}].`);
                         }
                         else
                             return await interaction.reply(`:warning: The queue is emtpy.`);
@@ -214,8 +217,8 @@ module.exports = {
 
                         if (searchedSongs.hasTracks()) {
                             const song = searchedSongs.tracks[0];
-                            await addNewSongToDB(conn, await shortenURL(url), addID, await urlToType(url), startIndex);
-                            await interaction.reply(`:bookmark_tabs: Song **${song.title}** added to [**${addID}**].`);
+                            await addNewSongToDB(conn, song.title, await shortenURL(url), addID, await urlToType(url), startIndex);
+                            await interaction.reply(`:bookmark_tabs: Song **${song.title}** added to **${addPlaylistName}** [${addID}].`);
                         }
                         else
                             return await interaction.reply(`:warning: Song not found.`);
@@ -224,15 +227,15 @@ module.exports = {
                     case addTypes.OTHER_PLAYLIST:
                         const addOtherPlaylisID = await shortenURL(interaction.options.getString('url_or_id'));
                         if (await valueExists(conn, 'song', 'playlistID', addOtherPlaylisID)) {
-                            const addOtherSongs = await conn.query("SELECT url, type FROM song WHERE playlistID = ?", [addOtherPlaylisID]);
+                            const addOtherSongs = await conn.query("SELECT url, title, type FROM song WHERE playlistID = ?", [addOtherPlaylisID]);
                             if (addOtherSongs.length === 0)
                                 return await interaction.reply(`:warning: Playlist [**${addOtherPlaylisID}**] is empty.`);
 
                             for (let i = 0; i < addOtherSongs.length; i++) {
                                 const addSong = addOtherSongs[i];
-                                await addNewSongToDB(conn, addSong.url, addID, addSong.type, startIndex + i);
+                                await addNewSongToDB(conn, addSong.title, addSong.url, addID, addSong.type, startIndex + i);
                             }
-                            await interaction.reply(`:bookmark_tabs: **${addOtherSongs.length}** songs added to [**${addID}**] from [**${addOtherPlaylisID}**].`);
+                            await interaction.reply(`:bookmark_tabs: **${addOtherSongs.length}** songs added to **${addPlaylistName}** [${addID}] from [**${addOtherPlaylisID}**].`);
                         }
                         else
                             return await interaction.reply(`:warning: Invalid second playlist ID.`);
