@@ -1,11 +1,11 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('@discordjs/builders');
 const { useMainPlayer } = require('discord-player');
 const { getThumb } = require('../../utility/getThumb.js');
-const { createCanvas, loadImage } = require('canvas')
-const { drawStrokedText } = require('../../utility/drawStrokedText.js');
 const { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
 const { dbPool, valueExists } = require('../../utility/db.js');
 const { addNewSongToDB, shortenURL, urlToType, validateYouTubeUrl } = require('../../utility/playlist_utility.js');
+const { getQueue } = require('../../utility/getQueue.js');
+const looper = require('./loop.js');
 
 const listTypes = {
     SERVER: 'server',
@@ -17,6 +17,7 @@ const addTypes = {
     URL: 'url',
     OTHER_PLAYLIST: 'otherplaylist'
 }
+
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -125,7 +126,7 @@ module.exports = {
                     playlists = await conn.query("SELECT id, name, description, editorName FROM playlist WHERE editorID = ? ORDER BY name", [interaction.user.id]);
 
                 if (playlists.length == 0)
-                    return await interaction.reply(`:warning: This server has no playlists yet.`);
+                    return await interaction.reply(`:warning: No playlists found.`);
 
                 const totalPages = Math.ceil(playlists.length / 10);
                 const pageIndex = (interaction.options.getInteger('page') ?? 1) - 1;
@@ -134,30 +135,30 @@ module.exports = {
 
                 let listString = '';
                 for (let i = pageIndex * 10; i < pageIndex * 10 + 10 && i < playlists.length; i++) {
-                    let playlist = playlists[i];
-                    listString += `:page_with_curl: [${playlist.id}] **${playlist.name}**\n`;
+                    const playlist = playlists[i];
+                    listString += `:page_with_curl: [${playlist.id}] **${playlist.name}**   >> ${await countOfSongsInPlaylist(conn, playlist.id)} tracks\n*`;
                     if (playlist.description.length > 50)
                         listString += playlist.description.substring(0, 47) + '...';
                     else
                         listString += playlist.description;
-                    listString += ` *- ${playlist.editorName}*\n\n`;
+                    listString += `* - ${playlist.editorName}\n\n`;
                 }
 
-                const embed = new EmbedBuilder();
+                const listEmbed = new EmbedBuilder();
 
                 if (listType == listTypes.SERVER) {
-                    embed
+                    listEmbed
                         .setTitle('The list of local playlists')
                         .setDescription(listString)
                         .setFooter({ text: `Page ${pageIndex + 1} of ${totalPages === 0 ? 1 : totalPages}` });
-                    await interaction.reply({ embeds: [embed] });
+                    await interaction.reply({ embeds: [listEmbed] });
                 }
                 else {
-                    embed
+                    listEmbed
                         .setTitle('The list of your playlists')
                         .setDescription(listString)
                         .setFooter({ text: `Page ${pageIndex + 1} of ${totalPages === 0 ? 1 : totalPages}` });
-                    await interaction.reply({ embeds: [embed], ephemeral: true });
+                    await interaction.reply({ embeds: [listEmbed], ephemeral: true });
                 }
                 break;
 
@@ -174,10 +175,8 @@ module.exports = {
 
                 const addPlaylistName = addPlaylists[0].name;
 
-                const countOfSongInPlaylist = await conn.query("SELECT Count(*) as count FROM song WHERE playlistID = ?", [addID]);
-                let startIndex = 0;
-                if (countOfSongInPlaylist.length > 0)
-                    startIndex = Number(countOfSongInPlaylist[0].count);
+                const addCountOSIPL = countOfSongsInPlaylist(conn, addID);
+                let startIndex = addCountOSIPL;
 
                 const player = useMainPlayer();
                 const queue = player.nodes.get(interaction.guildId);
@@ -244,10 +243,73 @@ module.exports = {
                 break;
 
             case 'play':
+                const playID = interaction.options.getString('id');
+                const playPlaylists = await conn.query("SELECT name FROM playlist WHERE id = ?", [playID]);
 
+                if (playPlaylists.length != 1)
+                    return await interaction.reply(`:warning: The playlist with global ID [**${playID}**] does not exist.`);
+
+                const playPlaylistName = playPlaylists[0].name;
+                const songs = await conn.query("SELECT url, type FROM song WHERE playlistID = ?", [playID]);
+
+                if (songs.length > 0) {
+                    const player = useMainPlayer();
+
+                    const shouldLoop = interaction.options.getBoolean('loop');
+                    const shouldShuffle = interaction.options.getBoolean('shuffle');
+
+                    if (!interaction.member.voice.channel)
+                        return interaction.reply(':warning: You need to be in a VC to use this command.');
+
+                    const queue = await getQueue(player, interaction);
+
+                    if (!queue.connection)
+                        await queue.connect(interaction.member.voice.channel);
+
+                    await interaction.reply(`:arrow_down: Loading **${songs.length}** tracks from playlist **${playPlaylistName}** [${playID}].`);
+
+                    let first = false;
+                    for (const song of songs) {
+                        const url = 'https://www.youtube.com/watch?v=' + song.url;
+                        const res = await player.search(url, {
+                            requestedBy: interaction.user,
+                            searchEngine: song.type
+                        });
+                        if (await res.hasTracks())
+                            await queue.addTrack(res.tracks[0]);
+
+                        if (!first){
+                            await queue.node.play();
+                            first = true;
+                        }
+                    }
+
+                    if (shouldShuffle)
+                        await queue.tracks.shuffle();
+
+                    if (shouldLoop)
+                        await queue.setRepeatMode('queue loop');
+
+                    const embed = new EmbedBuilder()
+                        .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL({ dynamics: true }) })
+                        .setDescription(`**${songs.length}** songs from playlist **${playPlaylistName}** [${playID}] has been added to the queue.`)
+                        .setThumbnail(await getThumb('https://www.youtube.com/watch?v=' + songs[0].url, 'small'));
+
+                    await interaction.followUp({ embeds: [embed] });
+                }
+                else
+                    await interaction.reply(`:warning: Playlist **${playPlaylistName}** [${playID}] is empty.`);
                 break;
         }
 
         conn.end();
     }
+}
+
+async function countOfSongsInPlaylist(conn, pID) {
+    const res = await conn.query("SELECT Count(*) as count FROM song WHERE playlistID = ?", [pID]);
+    if (res.length > 0)
+        return res[0].count;
+    else
+        return 0;
 }

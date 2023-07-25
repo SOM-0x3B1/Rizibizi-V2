@@ -3,6 +3,7 @@ const { QueryType, useMainPlayer } = require('discord-player');
 const { useMasterPlayer } = require('discord-player');
 const { getThumb } = require('../../utility/getThumb.js');
 const looper = require('./loop.js');
+const { getQueue } = require('../../utility/getQueue.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -16,22 +17,8 @@ module.exports = {
             return interaction.reply(':warning: You need to be in a VC to use this command.');
 
         const player = useMainPlayer();
-        let queue = player.nodes.get(interaction.guildId);
-        if (!queue) {
-            queue = await player.nodes.create(interaction.guild, {
-                metadata: {
-                    channel: interaction.channel,
-                    client: interaction.guild.members.me,
-                    requestedBy: interaction.user,
-                },
-                selfDeaf: false,
-                volume: 20,
-                leaveOnEmpty: true,
-                leaveOnEmptyCooldown: 300000,
-                leaveOnEnd: true,
-                leaveOnEndCooldown: 300000,
-            });
-        }
+        
+        const queue = await getQueue(player, interaction);
 
         if (!queue.connection)
             await queue.connect(interaction.member.voice.channel);
@@ -56,7 +43,7 @@ module.exports = {
 
         let embed = new EmbedBuilder()
             .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL({ dynamics: true }) })
-            .setDescription(`**${result.tracks.length} songs from [${playlist.title}](${playlist.url})** has been added to the queue.`)
+            .setDescription(`**${result.tracks.length}** songs from **[${playlist.title}](${playlist.url})** has been added to the queue.`)
             .setThumbnail(await getThumb(result.tracks[0].url, 'small'))
             .setFooter({ text: `${playlist.durationFormatted} - ${playlist.url}` });
 

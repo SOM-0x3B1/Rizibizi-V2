@@ -3,6 +3,7 @@ const { SlashCommandBuilder, EmbedBuilder } = require('@discordjs/builders');
 const { useMainPlayer } = require('discord-player');
 const { getThumb } = require('../../utility/getThumb.js');
 const looper = require('./loop.js');
+const { getQueue } = require('../../utility/getQueue.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -26,22 +27,7 @@ module.exports = {
         if (!interaction.member.voice.channel)
             return interaction.reply(':warning: You need to be in a VC to use this command.');
 
-        let queue = player.nodes.get(interaction.guildId);
-        if (!queue) {
-            queue = await player.nodes.create(interaction.guild, {
-                metadata: {
-                    channel: interaction.channel,
-                    client: interaction.guild.members.me,
-                    requestedBy: interaction.user,
-                },
-                selfDeaf: false,
-                volume: 20,
-                leaveOnEmpty: true,
-                leaveOnEmptyCooldown: 300000,
-                leaveOnEnd: true,
-                leaveOnEndCooldown: 300000,
-            });
-        }
+        const queue = await getQueue(player, interaction);
 
         if (!queue.connection)
             await queue.connect(interaction.member.voice.channel);
@@ -54,19 +40,19 @@ module.exports = {
         let type = interaction.options.getString('specify') ?? 'youtube'; // defaults to 'youtube', which is the auto option for
 
         let query = interaction.options.getString('query');
-        if(type == 'youtubePlaylist' && !query.includes('playlist?'))
+        if (type == 'youtubePlaylist' && !query.includes('playlist?'))
             query = 'https://www.youtube.com/playlist?list=' + query.split('=')[2].split('&')[0];
 
-        const result = await player.search(query, {
+        const res = await player.search(query, {
             requestedBy: interaction.user,
             searchEngine: type
         });
-        if (!result.hasTracks())
+        if (!res.hasTracks())
             return interaction.reply('No results.');
 
 
-        if (!result.hasPlaylist()) {
-            const song = result.tracks[0];
+        if (!res.hasPlaylist()) {
+            const song = res.tracks[0];
             await queue.addTrack(song);
 
             embed
@@ -76,12 +62,12 @@ module.exports = {
                 .setFooter({ text: `${song.duration} - ${song.url}` })
         }
         else {
-            const playlist = result.playlist;
+            const playlist = res.playlist;
             await queue.addTrack(playlist);
             embed
                 .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL({ dynamics: true }) })
-                .setDescription(`**${result.tracks.length} songs from [${playlist.title}](${playlist.url})** has been added to the queue.`)
-                .setThumbnail(await getThumb(result.tracks[0].url, 'small'))
+                .setDescription(`**${res.tracks.length}** songs from **[${playlist.title}](${playlist.url})** has been added to the queue.`)
+                .setThumbnail(await getThumb(res.tracks[0].url, 'small'))
                 .setFooter({ text: `${playlist.durationFormatted} - ${playlist.url}` });
 
             if (shouldShuffle)
@@ -92,13 +78,13 @@ module.exports = {
             await queue.node.play();
 
         if (shouldLoop) {
-            await looper.execute(interaction, client, result.hasPlaylist() ? 2 : 1);
+            await looper.execute(interaction, client, res.hasPlaylist() ? 2 : 1);
             await interaction.followUp({ embeds: [embed] })
         }
         else
             try {
                 await interaction.reply({ embeds: [embed] })
             }
-            catch{}
+            catch { }
     }
 }
