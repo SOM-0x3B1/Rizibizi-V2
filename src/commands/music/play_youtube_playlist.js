@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('@discordjs/builders');
 const { QueryType, useMainPlayer } = require('discord-player');
 const { useMasterPlayer } = require('discord-player');
-const { getThumb } = require('../../getThumb.js');
+const { getThumb } = require('../../utility/getThumb.js');
 const looper = require('./loop.js');
 
 module.exports = {

@@ -1,8 +1,8 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('@discordjs/builders');
 const { useMainPlayer } = require('discord-player');
-const { getThumb } = require('../../getThumb.js');
+const { getThumb } = require('../../utility/getThumb.js');
 const { createCanvas, loadImage } = require('canvas')
-const { drawStrokedText } = require('../../drawStrokedText.js');
+const { drawStrokedText } = require('../../utility/drawStrokedText.js');
 
 module.exports = {
     data: new SlashCommandBuilder()

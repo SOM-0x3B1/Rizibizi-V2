@@ -5,7 +5,18 @@ const { createCanvas, loadImage } = require('canvas')
 const { drawStrokedText } = require('../../utility/drawStrokedText.js');
 const { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
 const { dbPool, valueExists } = require('../../utility/db.js');
+const { addNewSongToDB, shortenURL, urlToType, validateYouTubeUrl } = require('../../utility/playlist_utility.js');
 
+const listTypes = {
+    SERVER: 'server',
+    MINE: 'mine',
+}
+const addTypes = {
+    CURRENT_SONG: 'csong',
+    QUEUE: 'queue',
+    URL: 'url',
+    OTHER_PLAYLIST: 'otherplaylist'
+}
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -29,8 +40,8 @@ module.exports = {
                     option.setName('list_type')
                         .setDescription('Which list do you want to see')
                         .addChoices(
-                            { name: 'server_playlists', value: 'server' },
-                            { name: 'my_playlists', value: 'mine' },
+                            { name: 'server_playlists', value: listTypes.SERVER },
+                            { name: 'my_playlists', value: listTypes.MINE },
                         ))
                 .addIntegerOption((option) => option.setName("page").setDescription('Page number of playlist list').setMinValue(1)))
         .addSubcommand(subcommand =>
@@ -44,13 +55,15 @@ module.exports = {
                 .setDescription('Adds song(s) to a playlist')
                 .addStringOption(option => option.setName('id').setDescription('The global ID of the playlist').setRequired(true))
                 .addStringOption(option =>
-                    option.setName('add_type').setDescription('What do you want to add to the playlist?').setRequired(true)
+                    option.setName('add_type')
+                        .setDescription('What do you want to add to the playlist?')
                         .addChoices(
-                            { name: 'current_song', value: 'csong' },
-                            { name: 'queue', value: 'queue' },
-                            { name: 'url', value: 'url' },
-                            { name: 'other_playlist', value: 'other_playlist' },
-                        ).setRequired(true)))
+                            { name: 'current_song', value: addTypes.CURRENT_SONG },
+                            { name: 'queue', value: addTypes.QUEUE },
+                            { name: 'url', value: addTypes.URL },
+                            { name: 'other_playlist', value: addTypes.OTHER_PLAYLIST },
+                        ).setRequired(true))
+                .addStringOption(option => option.setName('url_or_id').setDescription('The URL or global ID of the song (if required)')))
         .addSubcommand(subcommand =>
             subcommand
                 .setName('play')
@@ -93,7 +106,7 @@ module.exports = {
                 const result = await conn.query("SELECT id, name, editorID FROM playlist WHERE id = ?", [delID]);
 
                 if (result.length === 0)
-                    return await interaction.reply(`:warning: The playlist with global ID ${delID} doesn't exists.`);
+                    return await interaction.reply(`:warning: The playlist with global ID ${delID} does not exist.`);
                 if (result[0].editorID != interaction.user.id)
                     return await interaction.reply(`:warning: You are not the editor of the playlist called **${result[0].name}** [${delID}].`);
 
@@ -104,9 +117,9 @@ module.exports = {
                 break;
 
             case 'list':
-                const listType = interaction.options.getString('listtype') ?? 'server';
+                const listType = interaction.options.getString('listtype') ?? listTypes.SERVER;
                 let playlists = [];
-                if (listType == 'server')
+                if (listType == listTypes.SERVER)
                     playlists = await conn.query("SELECT id, name, description, editorName FROM playlist WHERE guildID = ? ORDER BY name", [interaction.guildId]);
                 else
                     playlists = await conn.query("SELECT id, name, description, editorName FROM playlist WHERE editorID = ? ORDER BY name", [interaction.user.id]);
@@ -132,7 +145,7 @@ module.exports = {
 
                 const embed = new EmbedBuilder();
 
-                if (listType == 'server') {
+                if (listType == listTypes.SERVER) {
                     embed
                         .setTitle('The list of local playlists')
                         .setDescription(listString)
@@ -153,7 +166,78 @@ module.exports = {
                 break;
 
             case 'add':
+                const addID = interaction.options.getString('id');
 
+                if (!valueExists(conn, 'playlist', 'id', addID))
+                    return await interaction.reply(`:warning: The playlist with global ID [**${addID}**] does not exist.`);
+
+                const countOfSongInPlaylist = await conn.query("SELECT Count(*) as count FROM song WHERE playlistID = ?", [addID]);
+                let startIndex = 0;
+                if (countOfSongInPlaylist.length > 0)
+                    startIndex = Number(countOfSongInPlaylist[0].count);
+
+                const player = useMainPlayer();
+                const queue = player.nodes.get(interaction.guildId);
+
+                switch (interaction.options.getString('add_type')) {
+                    case addTypes.CURRENT_SONG:
+                        if (queue && queue.currentTrack) {
+                            await addNewSongToDB(conn, await shortenURL(queue.currentTrack.url), addID, await urlToType(queue.currentTrack.url), startIndex);
+                            await interaction.reply(`:bookmark_tabs: Song **${queue.currentTrack.title}** added to [**${addID}**].`);
+                        }
+                        else
+                            return await interaction.reply(`:warning: There's no song currently playing.`);
+                        break;
+
+                    case addTypes.QUEUE:
+                        if (queue && (queue.tracks.size > 0 || queue.currentTrack)) {
+                            const currentSong = queue.currentTrack;
+                            if (currentSong)
+                                await addNewSongToDB(conn, await shortenURL(currentSong.url), addID, await urlToType(currentSong.url), startIndex);
+
+                            for (let i = 0; queue && i < queue.tracks.size; i++) {
+                                let song = queue.tracks.data[i];
+                                await addNewSongToDB(conn, await shortenURL(song.url), addID, await urlToType(song.url), startIndex + i);
+                            }
+                            await interaction.reply(`:bookmark_tabs: Queue added to [**${addID}**].`);
+                        }
+                        else
+                            return await interaction.reply(`:warning: The queue is emtpy.`);
+                        break;
+
+                    case addTypes.URL:
+                        const url = interaction.options.getString('url_or_id');
+                        const searchedSongs = await player.search(url, {
+                            requestedBy: interaction.user,
+                            searchEngine: await urlToType(url)
+                        });
+
+                        if (searchedSongs.hasTracks()) {
+                            const song = searchedSongs.tracks[0];
+                            await addNewSongToDB(conn, await shortenURL(url), addID, await urlToType(url), startIndex);
+                            await interaction.reply(`:bookmark_tabs: Song **${song.title}** added to [**${addID}**].`);
+                        }
+                        else
+                            return await interaction.reply(`:warning: Song not found.`);
+                        break;
+
+                    case addTypes.OTHER_PLAYLIST:
+                        const addOtherPlaylisID = await shortenURL(interaction.options.getString('url_or_id'));
+                        if (await valueExists(conn, 'song', 'playlistID', addOtherPlaylisID)) {
+                            const addOtherSongs = await conn.query("SELECT url, type FROM song WHERE playlistID = ?", [addOtherPlaylisID]);
+                            if (addOtherSongs.length === 0)
+                                return await interaction.reply(`:warning: Playlist [**${addOtherPlaylisID}**] is empty.`);
+
+                            for (let i = 0; i < addOtherSongs.length; i++) {
+                                const addSong = addOtherSongs[i];
+                                await addNewSongToDB(conn, addSong.url, addID, addSong.type, startIndex + i);
+                            }
+                            await interaction.reply(`:bookmark_tabs: **${addOtherSongs.length}** songs added to [**${addID}**] from [**${addOtherPlaylisID}**].`);
+                        }
+                        else
+                            return await interaction.reply(`:warning: Invalid second playlist ID.`);
+                        break;
+                }
                 break;
 
             case 'play':

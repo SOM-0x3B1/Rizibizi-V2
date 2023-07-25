@@ -1,8 +1,7 @@
-const { dbPool, valueExists } = require('../../db.js');
+const { dbPool, valueExists } = require('../../utility/db.js');
 const { useMainPlayer } = require('discord-player');
 const crypto = require('crypto');
-
-const newSongQuery = "INSERT INTO song(url,playlistID,type,position) VALUES (?, ?, ?, ?)";
+const { addNewSongToDB, shortenURL, urlToType, validateYouTubeUrl } = require('../../utility/playlist_utility.js');
 
 module.exports = {
     name: 'interactionCreate',
@@ -45,18 +44,19 @@ module.exports = {
                     const player = useMainPlayer();
                     const queue = player.nodes.get(interaction.guildId);
 
-                    if (queue) {
+                    if (queue && (queue.tracks.size > 0 || queue.currentTrack)) {
                         const currentSong = queue.currentTrack;
                         if (currentSong)
-                            await conn.query(newSongQuery, [await shortenURL(currentSong.url), id, await urlToType(currentSong.url), 0]);
-                    }
-                    for (let i = 0; queue && i < queue.tracks.size; i++) {
-                        let song = queue.tracks.data[i];
-                        await conn.query(newSongQuery, [await shortenURL(song.url), id, await urlToType(song.url), i + 1]);
+                            await addNewSongToDB(conn, await shortenURL(currentSong.url), id, await urlToType(currentSong.url), 0);
+
+                        for (let i = 0; queue && i < queue.tracks.size; i++) {
+                            let song = queue.tracks.data[i];
+                            await addNewSongToDB(conn, await shortenURL(song.url), id, await urlToType(song.url), i + 1);
+                        }
                     }
                 }
 
-                await interaction.reply(`:page_with_curl: Playlist named **${playlistName}** created successfully. \n Global playlist ID: **${id}**`);
+                await interaction.reply(`:page_with_curl: Playlist named **${playlistName}** created successfully. \n Global playlist ID: [**${id}**]`);
             }
             else {
                 await interaction.reply({
@@ -64,19 +64,7 @@ module.exports = {
                     ephemeral: true
                 });
             }
-
             conn.end();
         }
     }
-}
-
-async function shortenURL(url) {
-    return url.split('=')[1];
-}
-
-async function urlToType(url) {
-    if (url.includes('youtube'))
-        return 'youtubeVideo';
-    else
-        return 'idk'
 }
