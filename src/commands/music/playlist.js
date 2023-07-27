@@ -5,7 +5,9 @@ const { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = req
 const { dbPool, valueExists } = require('../../utility/db.js');
 const { addNewSongToDB, shortenURL, urlToType, validateYouTubeUrl } = require('../../utility/playlist_utility.js');
 const { getQueue } = require('../../utility/getQueue.js');
-const looper = require('./loop.js');
+const looper = require('./loop.js');;
+const { createCanvas, loadImage } = require('canvas')
+const { drawStrokedText } = require('../../utility/drawStrokedText.js');
 
 const listTypes = {
     SERVER: 'server',
@@ -49,6 +51,11 @@ module.exports = {
             subcommand
                 .setName('edit')
                 .setDescription('Gives you a URL where you can edit your playlist')
+                .addStringOption(option => option.setName('id').setDescription('The global ID of your playlist').setRequired(true)))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('info')
+                .setDescription('Gives you details about a playlist')
                 .addStringOption(option => option.setName('id').setDescription('The global ID of your playlist').setRequired(true)))
         .addSubcommand(subcommand =>
             subcommand
@@ -166,6 +173,54 @@ module.exports = {
 
                 break;
 
+            case 'info':
+                const infoID = interaction.options.getString('id');
+                const infoPlaylists = await conn.query("SELECT name, description, editorName FROM playlist WHERE id = ?", [infoID]);
+
+                if (infoPlaylists.length != 1)
+                    return await interaction.reply(`:warning: The playlist with global ID [**${infoID}**] does not exist.`);
+
+                const infoPlaylistName = infoPlaylists[0].name;
+                const infoSongs = await conn.query("SELECT url, title, type FROM song WHERE playlistID = ?", [infoID]);
+
+                if (infoSongs.length > 0) {
+                    let infoString = `\n**Description**\n${infoPlaylists[0].description}\n\n**Tracks** (${infoSongs.length})\n`;
+                    for (let i = 0; i < infoSongs.length && i < 10; i++) {
+                        let song = infoSongs[i];
+                        infoString += `**${i + 1}.** [${song.title}](https://www.youtube.com/watch?v=${song.url})\n`;
+                    }
+
+                    const countOfListImages = infoSongs.length > 4 ? 4 : infoSongs.length;
+                    const canvas = await createCanvas(120 * (countOfListImages), 90);
+                    const ctx = await canvas.getContext('2d');
+                    ctx.font = 'bold 18px Sans';
+                    ctx.strokeStyle = 'rgba(0,0,0,255)';
+                    ctx.fillStyle = 'rgba(255,255,255,255)';
+
+                    for (let i = 0; i < countOfListImages; i++) {
+                        const listImage = await loadImage(await getThumb('https://www.youtube.com/watch?v=' + infoSongs[i].url, 'small'));
+                        await ctx.drawImage(listImage, 120 * (i), 0, 120, 90);
+                        await drawStrokedText(ctx, `${i + 1}.`, 120 * (i) + 2, 20);
+                    }
+
+                    await interaction.reply({
+                        embeds: [
+                            new EmbedBuilder()
+                                .setTitle(infoPlaylistName)
+                                .setDescription(infoString)
+                                .setImage('attachment://img.png')
+                                .setFooter({ text: `Global ID:  ${infoID} \nEditor:        ${infoPlaylists[0].editorName}` })
+                        ],
+                        files: [{
+                            attachment: await canvas.toBuffer('image/png'),
+                            name: 'img.png'
+                        }]
+                    });
+                }
+                else
+                    await interaction.reply(`:warning: Playlist **${infoPlaylistName}** [${infoID}] is empty.`);
+                break;
+
             case 'add':
                 const addID = interaction.options.getString('id');
                 const addPlaylists = await conn.query("SELECT name FROM playlist WHERE id = ?", [addID]);
@@ -175,7 +230,7 @@ module.exports = {
 
                 const addPlaylistName = addPlaylists[0].name;
 
-                const addCountOSIPL = countOfSongsInPlaylist(conn, addID);
+                const addCountOSIPL = await countOfSongsInPlaylist(conn, addID);
                 let startIndex = addCountOSIPL;
 
                 const player = useMainPlayer();
@@ -278,7 +333,7 @@ module.exports = {
                         if (await res.hasTracks())
                             await queue.addTrack(res.tracks[0]);
 
-                        if (!first){
+                        if (!first) {
                             await queue.node.play();
                             first = true;
                         }
@@ -309,7 +364,7 @@ module.exports = {
 async function countOfSongsInPlaylist(conn, pID) {
     const res = await conn.query("SELECT Count(*) as count FROM song WHERE playlistID = ?", [pID]);
     if (res.length > 0)
-        return res[0].count;
+        return Number(res[0].count);
     else
         return 0;
 }
