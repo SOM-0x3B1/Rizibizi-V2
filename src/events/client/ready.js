@@ -1,9 +1,16 @@
 const { ActivityType } = require('discord.js');
+const { dbPool, valueExists } = require('../../utility/db.js');
 
 module.exports = {
     name: 'ready',
     once: true,
-    async execute(client){
+    async execute(client) {
+        const conn = await dbPool.getConnection();
+        client.guilds.cache.forEach(async (guild) => {
+            if (!await valueExists(conn, 'guild', 'dcID', guild.id))
+                conn.query("INSERT INTO guild(dcID,name) VALUES(?, ?)", [guild.id, guild.name]);
+        });
+
         client.user.setActivity({
             name: 'while you sleep 👁️',
             type: ActivityType.Watching

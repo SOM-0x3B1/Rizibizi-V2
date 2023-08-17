@@ -37,8 +37,8 @@ module.exports = {
             if (!await valueExists(conn, 'playlist', 'name', playlistName, 'guildID', interaction.guildId)) {
                 const id = crypto.randomBytes(6).toString('hex');
                 const editKey = crypto.randomBytes(8).toString('hex');
-                const values = [id, editKey, playlistName, playlistDesc, interaction.user.id, interaction.guildId, interaction.user.username];
-                await conn.query("INSERT INTO playlist(id,editKey,name,description,editorID,guildID,editorName) VALUES(?, ?, ?, ?, ?, ?, ?)", values);
+                const values = [id, editKey, playlistName, playlistDesc, interaction.user.id, interaction.guildId];
+                await conn.query("INSERT INTO playlist(id,editKey,name,description,editorID,guildID) VALUES(?, ?, ?, ?, ?, ?)", values);
 
                 if (interaction.customId === 'queuePlaylistCreator') {
                     const player = useMainPlayer();
@@ -59,6 +59,8 @@ module.exports = {
                 else
                     await interaction.reply(`:page_with_curl: Playlist named **${playlistName}** created successfully. \n Global playlist ID: [**${id}**]`);
 
+                if(!await valueExists(conn, 'editor', 'id', interaction.user.id))
+                    await conn.query("INSERT INTO editor(id,name,editor.key) VALUES(?, ?, ?)", [interaction.user.id, interaction.user.username, crypto.randomBytes(8).toString('hex')]);
             }
             else {
                 await interaction.reply({
