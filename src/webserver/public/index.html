@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rizibizi 2.0 - Editor</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src = "/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+    <div id="bg"> <video src="media/tape_recorder.mp4" type="video/mp4" muted autoplay loop></video></div>   
+
+    <main>
+        <h1>**** RIZIBIZI 2.0 EDITOR ****</h1>
+        <div id="botStatistics">- SERVERS - EDITORS - PLAYLISTS - SONGS</div>
+
+        <div id="login">
+            <label for="key">EDITOR LOGIN KEY:</label>
+            <input c type="text" id="key" class="key" name="key" maxlength="16">
+            <span id="loginButton" class="button" onclick="login()">></span>
+            <div id="loginError"></div>
+        </div>
+
+        <div id="back" onclick="back()"><<<</div>
+
+        <ul id="list">
+
+        </ul>
+
+        <div id="dropdown">
+            <span class="button songbutton">❌</span><span class="button songbutton">🔼</span><span class="button songbutton">🔽</span>
+        </div>
+
+        <div id="detailsPanel">
+            <h2>DETAILS</h2>
+            <div id="details"></div>
+        </div>
+
+        <div id="editorInfo">EDITOR: <span id="editorName">unauthorized</span></div>
+    </main>
+
+    <div id="overlay"></div>
+    <img id="dirt" src="media/old_screen_overlay.png" alt="">
+
+    <script src="comm.js"></script>
+</body>
+
+</html>

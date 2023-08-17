@@ -4,7 +4,7 @@ const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const fs = require('fs');
 const { Player } = require('discord-player');
 const os = require('os');
-
+const { createWebServer } = require('./webserver/server.js');
 
 os.setPriority(os.constants.priority.PRIORITY_HIGH);
 
@@ -36,3 +36,5 @@ for (const folder of functionFolders) {
 client.handleEvents();
 client.handleCommands();
 client.login(token);
+
+createWebServer();

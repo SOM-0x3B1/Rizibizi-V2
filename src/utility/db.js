@@ -6,7 +6,9 @@ const pool = mariadb.createPool({
     database: 'rizibizi2',
     user: 'rizibizi2',
     password: dbPasswd,
-    connectionLimit: 10
+    connectionLimit: 10,
+    decimalAsNumber: true,
+    bigIntAsNumber: true 
 });
 
 module.exports = {
