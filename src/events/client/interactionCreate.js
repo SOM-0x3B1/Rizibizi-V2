@@ -47,11 +47,11 @@ module.exports = {
                     if (queue && (queue.tracks.size > 0 || queue.currentTrack)) {
                         const currentSong = queue.currentTrack;
                         if (currentSong)
-                            await addNewSongToDB(conn, await shortenURL(currentSong.url), id, await urlToType(currentSong.url), 0);
+                            await addNewSongToDB(conn, currentSong.title, await shortenURL(currentSong.url), id, await urlToType(currentSong.url), 0);
 
                         for (let i = 0; queue && i < queue.tracks.size; i++) {
                             let song = queue.tracks.data[i];
-                            await addNewSongToDB(conn, await shortenURL(song.url), id, await urlToType(song.url), i + 1);
+                            await addNewSongToDB(conn, song.title, await shortenURL(song.url), id, await urlToType(song.url), i + 1);
                         }
                     }
                     await interaction.reply(`:page_with_curl: Playlist named **${playlistName}** created from queue successfully. \n ${queue.tracks.size} songs added. \n Global playlist ID: [**${id}**]`);

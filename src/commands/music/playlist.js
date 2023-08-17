@@ -125,12 +125,12 @@ module.exports = {
                 break;
 
             case 'list':
-                const listType = interaction.options.getString('listtype') ?? listTypes.SERVER;
+                const listType = interaction.options.getString('list_type') ?? listTypes.SERVER;
                 let playlists = [];
                 if (listType == listTypes.SERVER)
-                    playlists = await conn.query("SELECT id, name, description, editorName FROM playlist WHERE guildID = ? ORDER BY name", [interaction.guildId]);
+                    playlists = await conn.query("SELECT playlist.id, playlist.name, description, editor.name AS eName FROM playlist INNER JOIN editor ON editor.id = editorID WHERE guildID = ? ORDER BY playlist.name", [interaction.guildId]);
                 else
-                    playlists = await conn.query("SELECT id, name, description, editorName FROM playlist WHERE editorID = ? ORDER BY name", [interaction.user.id]);
+                    playlists = await conn.query("SELECT playlist.id, playlist.name, description, editor.name AS eName FROM playlist INNER JOIN editor ON editor.id = editorID WHERE editorID = ? ORDER BY playlist.name", [interaction.user.id]);
 
                 if (playlists.length == 0)
                     return await interaction.reply(`:warning: No playlists found.`);
@@ -143,12 +143,12 @@ module.exports = {
                 let listString = '';
                 for (let i = pageIndex * 10; i < pageIndex * 10 + 10 && i < playlists.length; i++) {
                     const playlist = playlists[i];
-                    listString += `:page_with_curl: [${playlist.id}] **${playlist.name}**   >> ${await countOfSongsInPlaylist(conn, playlist.id)} tracks\n*`;
+                    listString += `:page_with_curl: [${playlist.id}] **${playlist.name}**   >> ${await countOfSongsInPlaylist(conn, playlist.id)} tracks\n`;
                     if (playlist.description.length > 50)
                         listString += playlist.description.substring(0, 47) + '...';
                     else
                         listString += playlist.description;
-                    listString += `* - ${playlist.editorName}\n\n`;
+                    listString += ` - ${playlist.eName}\n\n`;
                 }
 
                 const listEmbed = new EmbedBuilder();
@@ -170,12 +170,12 @@ module.exports = {
                 break;
 
             case 'edit':
-
+                
                 break;
 
             case 'info':
                 const infoID = interaction.options.getString('id');
-                const infoPlaylists = await conn.query("SELECT name, description, editorName FROM playlist WHERE id = ?", [infoID]);
+                const infoPlaylists = await conn.query("SELECT playlist.name, description, editor.name as eName FROM playlist INNER JOIN editor ON editor.id = editorID WHERE playlist.id = ?", [infoID]);
 
                 if (infoPlaylists.length != 1)
                     return await interaction.reply(`:warning: The playlist with global ID [**${infoID}**] does not exist.`);
@@ -209,7 +209,7 @@ module.exports = {
                                 .setTitle(infoPlaylistName)
                                 .setDescription(infoString)
                                 .setImage('attachment://img.png')
-                                .setFooter({ text: `Global ID:  ${infoID} \nEditor:        ${infoPlaylists[0].editorName}` })
+                                .setFooter({ text: `Global ID:  ${infoID} \nEditor:        ${infoPlaylists[0].eName}` })
                         ],
                         files: [{
                             attachment: await canvas.toBuffer('image/png'),
