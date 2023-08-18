@@ -51,7 +51,7 @@ module.exports = {
             subcommand
                 .setName('edit')
                 .setDescription('Gives you a URL where you can edit your playlist')
-                .addStringOption(option => option.setName('id').setDescription('The global ID of your playlist').setRequired(true)))
+                /*.addStringOption(option => option.setName('id').setDescription('The global ID of your playlist').setRequired(true))*/)
         .addSubcommand(subcommand =>
             subcommand
                 .setName('info')
@@ -75,7 +75,7 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('play')
-                .setDescription('Gives you a URL where you can edit your playlist')
+                .setDescription('Adds your playlist to the queue')
                 .addStringOption((option) => option.setName('id').setDescription('The id of the playlist').setRequired(true))
                 .addBooleanOption((option) => option.setName('loop').setDescription('Should I loop this playlist?'))
                 .addBooleanOption((option) => option.setName('shuffle').setDescription('Should I shuffle this playlist?'))),
@@ -170,7 +170,8 @@ module.exports = {
                 break;
 
             case 'edit':
-                
+                const editor = await conn.query("SELECT editor.key as eKey FROM editor WHERE editor.name = ?", [interaction.user.username]);
+                await interaction.reply({ content: `Your login key: **${editor[0].eKey}**\nEditor website: https://music.onekilobit.eu/`, ephemeral: true });
                 break;
 
             case 'info':
