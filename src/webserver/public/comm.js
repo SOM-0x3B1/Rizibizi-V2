@@ -1,8 +1,11 @@
 const socket = io();
 
 const list = document.getElementById('list');
-const dropdown = document.getElementById('dropdown');
+const dropdown = document.getElementById('sDropdown');
 const backButton = document.getElementById('back');
+
+var dropdownLock = false;
+var movedLiIndex;
 
 
 function login() {
@@ -14,18 +17,24 @@ function login() {
     document.getElementById('key').value = '';
 }
 
-function edit(id) {    
+function openPlaylist(id) {
     list.innerHTML = '';
     list.style.fontSize = '9pt'
     backButton.style.display = 'block';
     socket.emit('getSongs', id);
 }
 
-function back() {    
+function back() {
     list.innerHTML = '';
     list.style.fontSize = getComputedStyle(document.documentElement).getPropertyValue('--font-size');
     backButton.style = 'none';
+    //dropdown.style.display = '';
     socket.emit('getPlaylists');
+}
+
+function editSong(id, action) {
+    list.innerHTML = '';
+    socket.emit('editSong', id, action);
 }
 
 
@@ -53,12 +62,12 @@ socket.on('sendPlaylists', (data) => {
         list.appendChild(li);
         i++;
 
-        li.onmouseenter = () => { document.getElementById('details').innerText = `NAME: ${playlist.pName}\nSERVER: ${playlist.gName} \nDESCRIPTION: ${playlist.pDesc}` };
-        li.onclick = () => { edit(playlist.pID) };
+        li.onmouseenter = () => { document.getElementById('details').innerText = `NAME: ${playlist.pName} \nID:[${playlist.pID}] \nSERVER: ${playlist.gName} \nDESCRIPTION: ${playlist.pDesc}` };
+        li.onclick = () => { openPlaylist(playlist.pID) };
     }
 });
 
-socket.on('sendSongs', (data) => {
+socket.on('sendSongs', async (data) => {
     if (data.success) {
         const songs = data.songs;
 
@@ -68,14 +77,34 @@ socket.on('sendSongs', (data) => {
             li.innerText = `${i}. ${song.sTitle}`;
             li.className = 'song';
             li.style.padding = '1ex'
-            list.appendChild(li);
-            i++;
+            list.appendChild(li);            
 
-            const url = 'https://youtu.be/' + song.url;
-            li.onmouseenter = () => {
-                document.getElementById('details').innerText = `TITLE: ${song.sTitle}\nTYPE: ${song.type} \nURL: ${url}`;
-                li.appendChild(dropdown);
-            };
+            const url = 'https://youtu.be/' + song.url;            
+            await addMouseEvent(song, url, li, i);
+            i++;
         }
+
+        /*if (movedLiIndex) {
+            list.getElementsByTagName('li')[movedLiIndex].appendChild(dropdown);  
+            dropdown.style.display = 'block';
+            movedLiIndex = null;
+            console.log(dropdown);
+        }*/
     }
 });
+
+
+async function addMouseEvent(song, url, li, i){
+    li.onmouseenter = () => {
+        if (!dropdownLock) {
+            document.getElementById('details').innerText = `TITLE: ${song.sTitle}\nTYPE: ${song.type} \nURL: ${url}`;
+            li.appendChild(dropdown);
+            document.getElementById('sDelete').onclick = () => { editSong(song.sID, 'sDelete') };
+            document.getElementById('sUp').onclick = () => { editSong(song.sID, 'sUp'); dropdownLock = true; movedLiIndex = i - 2; };
+            document.getElementById('sDown').onclick = () => { editSong(song.sID, 'sDown'); dropdownLock = true; movedLiIndex = i; };
+            //dropdown.style.display = '';
+        }
+        else
+            dropdownLock = false;
+    };
+}

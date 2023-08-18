@@ -7,6 +7,11 @@
     <title>Rizibizi 2.0 - Editor</title>
 
     <link rel="stylesheet" href="style.css">
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="media/icon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="media/icon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="media/icon/favicon-16x16.png">
+    <link rel="manifest" href="media/icon/site.webmanifest">
 
     <script src = "/socket.io/socket.io.js"></script>
 </head>
@@ -31,8 +36,8 @@
 
         </ul>
 
-        <div id="dropdown">
-            <span class="button songbutton">❌</span><span class="button songbutton">🔼</span><span class="button songbutton">🔽</span>
+        <div id="sDropdown">
+            <span id="sDelete" class="button songbutton">❌</span><span id="sUp" class="button songbutton">🔼</span><span id="sDown" class="button songbutton">🔽</span>
         </div>
 
         <div id="detailsPanel">

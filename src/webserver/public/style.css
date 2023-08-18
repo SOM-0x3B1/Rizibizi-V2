@@ -127,6 +127,10 @@ h1 {
     cursor: pointer;
 }
 
+#list li:last-child{
+    margin-bottom: 2em;
+}
+
 #list li:hover{
     background-color: var(--fg-color);
     color: var(--bg-color);
@@ -136,7 +140,7 @@ h1 {
     cursor: default !important;
 }
 
-#dropdown{
+#sDropdown{
     display: none;
     position: absolute;
     top: 100%;
@@ -146,7 +150,7 @@ h1 {
     font-size: 16pt;
 }
 
-#list li:hover #dropdown{
+#list li:hover #sDropdown{
     display: block;
 }
 
@@ -168,7 +172,8 @@ h1 {
     width: calc(100% - 6em - 0.5ex);
     height: 20%;     
     margin: 3em;
-    margin-top: 1em;
+    margin-top: 1.5em;
+    margin-bottom: 0;
     padding-left: 0.5ex;
 }
 
@@ -266,17 +271,14 @@ h1 {
     width: 1vh;
     height: 1vh;
 }
-
 /* Track */
 ::-webkit-scrollbar-track {
     background-color: var(--bg-color);
 }
-
 /* Handle */
 ::-webkit-scrollbar-thumb {
     background: var(--fg-color);
 }
-
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
     background: var(--bg-color);

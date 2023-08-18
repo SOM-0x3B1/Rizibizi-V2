@@ -69,6 +69,9 @@ module.exports = {
             let editorID;
 
             sendStats(socket);
+            const x = setInterval(() => {
+                sendStats(socket);
+            }, 1000);
 
             socket.on('login', async (key) => {
                 if (key.length != 16)
@@ -91,12 +94,7 @@ module.exports = {
             socket.on('getSongs', async (playlistID) => {
                 if (authenticated) {
                     const conn = await dbPool.getConnection();
-                    const songs = await conn.query("SELECT song.id as sID, song.title as sTitle, url, type FROM song INNER JOIN playlist ON playlist.id = song.playlistID WHERE playlist.editorID = ? AND song.playlistID = ? ORDER BY position", [editorID, playlistID]);
-                    if (songs.length > 0)
-                        socket.emit('sendSongs', { success: true, songs: songs });
-                    else
-                        socket.emit('sendSongs', { success: false });
-
+                    await sendSongs(conn, socket, editorID, playlistID);
                     conn.end();
                 }
             });
@@ -105,6 +103,44 @@ module.exports = {
                 if (authenticated) {
                     const conn = await dbPool.getConnection();
                     await sendPlaylists(conn, socket, editorID);
+                    conn.end();
+                }
+            });
+
+            socket.on('editSong', async (songID, action) => {
+                if (authenticated) {
+                    const conn = await dbPool.getConnection();
+                    const songs = await conn.query("SELECT song.id as sID, song.title as sTitle, url, type, song.playlistID, position FROM song INNER JOIN playlist ON playlist.id = song.playlistID WHERE playlist.editorID = ? AND song.id = ? ORDER BY position", [editorID, songID]);
+                    if (songs.length > 0) {
+                        const song = songs[0];
+                        switch (action) {
+                            case 'sDelete':
+                                await conn.query("DELETE FROM song WHERE song.id = ?", [songID]);
+                                const reposSongs = await conn.query("SELECT song.id FROM song WHERE song.playlistID = ? AND position > ? ORDER BY position", [song.playlistID, song.position]);
+                                for (let i = 0; i < reposSongs.length; i++)
+                                    await conn.query("UPDATE song SET position = ? WHERE song.id = ?", [song.position + i, reposSongs[i].id]);
+                                break;
+
+                            case 'sUp':
+                                if (song.position > 0) {
+                                    await conn.query("UPDATE song SET position = ? WHERE song.position = ? AND song.playlistID = ?", [song.position, song.position - 1, song.playlistID]);
+                                    await conn.query("UPDATE song SET position = ? WHERE song.id = ?", [song.position - 1, songID]);
+                                }
+                                break;
+
+                            case 'sDown':
+                                const max = await conn.query("SELECT MAX(position) as max FROM song WHERE playlistID = ?", [song.playlistID]);
+                                if (song.position < max[0].max) {
+                                    await conn.query("UPDATE song SET position = ? WHERE song.position = ? AND song.playlistID = ?", [song.position, song.position + 1, song.playlistID]);
+                                    await conn.query("UPDATE song SET position = ? WHERE song.id = ?", [song.position + 1, songID]);
+                                }
+                                break;
+                        }
+                        await sendSongs(conn, socket, editorID, song.playlistID);
+                        sendStats(socket);
+                    }
+                    else
+                        socket.emit('sendSongs', { success: false });
                     conn.end();
                 }
             });
@@ -126,4 +162,12 @@ async function sendStats(socket) {
 async function sendPlaylists(conn, socket, editorID) {
     const playlists = await conn.query("SELECT playlist.id as pID, playlist.name as pName, playlist.description as pDesc, guild.name as gName FROM playlist INNER JOIN guild ON playlist.guildID = guild.dcID WHERE playlist.editorID = ?", [editorID]);
     socket.emit('sendPlaylists', { success: true, pLists: playlists });
+}
+
+async function sendSongs(conn, socket, editorID, playlistID) {
+    const songs = await conn.query("SELECT song.id as sID, song.title as sTitle, url, type FROM song INNER JOIN playlist ON playlist.id = song.playlistID WHERE playlist.editorID = ? AND song.playlistID = ? ORDER BY position", [editorID, playlistID]);
+    if (songs.length > 0)
+        socket.emit('sendSongs', { success: true, songs: songs });
+    else
+        socket.emit('sendSongs', { success: false });
 }
