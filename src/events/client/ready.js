@@ -10,6 +10,7 @@ module.exports = {
             if (!await valueExists(conn, 'guild', 'dcID', guild.id))
                 conn.query("INSERT INTO guild(dcID,name) VALUES(?, ?)", [guild.id, guild.name]);
         });
+        conn.end();
 
         client.user.setActivity({
             name: 'while you sleep 👁️',

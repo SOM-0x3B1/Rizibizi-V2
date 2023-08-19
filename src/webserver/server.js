@@ -71,7 +71,11 @@ module.exports = {
             sendStats(socket);
             const x = setInterval(() => {
                 sendStats(socket);
-            }, 1000);
+            }, 5000);
+
+            socket.on('disconnect', () => {
+                clearInterval(x);
+            })
 
             socket.on('login', async (key) => {
                 if (key.length != 16)
@@ -156,7 +160,7 @@ async function sendStats(socket) {
     const s = await conn.query("SELECT Count(DISTINCT url) AS count FROM song");
     //console.log({ servers: g[0].count, editors: e[0].count, playlists: p[0].count, songs: s[0].count });
     socket.emit('updateStats', { servers: g[0].count, editors: e[0].count, playlists: p[0].count, songs: s[0].count });
-    conn.end()
+    conn.end();
 }
 
 async function sendPlaylists(conn, socket, editorID) {
