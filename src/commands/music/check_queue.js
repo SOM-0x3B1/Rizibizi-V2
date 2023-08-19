@@ -13,10 +13,10 @@ module.exports = {
         const player = useMainPlayer();
         const queue = player.nodes.get(interaction.guildId);
 
-        if (!queue || !queue.currentTrack || queue.tracks.size === 0)
+        if (!queue || ((queue.currentTrack ? 1 : 0) + queue.tracks.size) == 0)
             return await interaction.reply(':warning: There are no songs in the queue.');
 
-        const totalPages = Math.ceil(queue.tracks.size / 10);
+        const totalPages = Math.ceil((queue.tracks.size + (queue.currentTrack ? 1 : 0)) / 10);
         const pageIndex = (interaction.options.getNumber('page') ?? 1) - 1;
         if (pageIndex > totalPages - 1)
             return await interaction.reply(`:warning: Invalid page. There are only a total of ${totalPages === 0 ? 1 : totalPages} pages in the queue.`);

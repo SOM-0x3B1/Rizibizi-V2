@@ -18,7 +18,12 @@ const player = Player.singleton(client, {
     ytdlOptions: {
         filter: 'audioonly',
         quality: "highestaudio",
-        highWaterMark: 1 << 25
+        highWaterMark: 1 << 25,
+        requestOptions: {
+            headers: {
+                cookie: "MY_YOUTUBE_COOKIE"
+            }
+        }
     }
 });
 player.extractors.loadDefault();

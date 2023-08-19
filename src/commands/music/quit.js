@@ -13,6 +13,6 @@ module.exports = {
             return await interaction.reply(':warning: The player is already offline.');
 
         queue.delete();
-        await interaction.reply(':wave: Exiting...');
+        await interaction.reply(':wave: Disconnecting...');
     }
 }

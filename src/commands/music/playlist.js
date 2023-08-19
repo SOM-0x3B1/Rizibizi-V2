@@ -23,7 +23,7 @@ const addTypes = {
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('playlist')
+        .setName('plist')
         .setDescription('Manage playlists')
         .addSubcommand(subcommand =>
             subcommand

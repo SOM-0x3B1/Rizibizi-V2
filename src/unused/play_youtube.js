@@ -1,9 +1,9 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('@discordjs/builders');
 //const { QueryType } = require('discord-player');
 const { useMainPlayer } = require('discord-player');
-const { getThumb } = require('../../utility/getThumb.js');
-const looper = require('./loop.js');
-const { getQueue } = require('../../utility/getQueue.js');
+const { getThumb } = require('../utility/getThumb.js');
+const looper = require('../commands/music/loop.js');
+const { getQueue } = require('../utility/getQueue.js');
 
 module.exports = {
     data: new SlashCommandBuilder()

@@ -62,7 +62,7 @@ socket.on('sendPlaylists', (data) => {
         list.appendChild(li);
         i++;
 
-        li.onmouseenter = () => { document.getElementById('details').innerText = `NAME: ${playlist.pName} \nID:[${playlist.pID}] \nSERVER: ${playlist.gName} \nDESCRIPTION: ${playlist.pDesc}` };
+        li.onmouseenter = () => { document.getElementById('details').innerText = `NAME: ${playlist.pName} \nID: [${playlist.pID}] \nSERVER: ${playlist.gName} \nDESCRIPTION: ${playlist.pDesc}` };
         li.onclick = () => { openPlaylist(playlist.pID) };
     }
 });
