@@ -1,3 +1,5 @@
+const { QueryType } = require('discord-player');
+
 const newSongQuery = "INSERT INTO song(url,title,playlistID,type,position) VALUES (?, ?, ?, ?, ?)";
 
 module.exports = {
@@ -5,16 +7,32 @@ module.exports = {
         await conn.query(newSongQuery, [url, title, pID, type, pos]);
     },
     async shortenURL(url) {
-        if (url.includes('youtu'))
+        if (url.startsWith('https://www.youtube.com/watch?v='))
             return url.split('=')[1];
+        else if (url.includes('spotify.com/'))
+            return url.split('/')[4];
         else
             return url;
     },
-    async urlToType(url) {
-        if (url.includes('youtu'))
-            return 'youtubeVideo';
+    async urlToType(query) {
+        if (query.startsWith('https://www.youtube.com/'))
+            return QueryType.YOUTUBE_VIDEO;
+        else if (query.includes('spotify.com/'))
+            return QueryType.SPOTIFY_SONG;
+        else if (query.startsWith('https://cdn.discordapp.com/attachments/'))
+            return QueryType.ARBITRARY;
         else
-            return 'idk'
+            return QueryType.AUTO;
+    },
+    async typeToSource(type) {
+        switch (type) {
+            case QueryType.YOUTUBE_VIDEO:
+                return 'https://www.youtube.com/watch?v=';
+            case QueryType.SPOTIFY_SONG:
+                return 'https://open.spotify.com/track/';
+            case QueryType.ARBITRARY:
+                return '';
+        }
     },
     async validateYouTubeUrl(url) {
         if (url) {

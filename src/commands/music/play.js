@@ -4,6 +4,7 @@ const { useMainPlayer, QueryType } = require('discord-player');
 const { getThumb } = require('../../utility/getThumb.js');
 const looper = require('./loop.js');
 const { getQueue } = require('../../utility/getQueue.js');
+const { urlToType } = require('../../utility/playlist_utility.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -33,8 +34,9 @@ module.exports = {
 
         const queue = await getQueue(player, interaction);
 
-        if (!queue.connection)
+        if (!queue.connection || interaction.member.voice.channel != queue.channel) {
             await queue.connect(interaction.member.voice.channel);
+        }
 
         let embed = new EmbedBuilder();
 
@@ -69,7 +71,6 @@ module.exports = {
                 type = QueryType.AUTO;
         }
 
-
         //== Play =================================================
         const res = await player.search(query, {
             requestedBy: interaction.user,
@@ -90,7 +91,7 @@ module.exports = {
                     .setThumbnail(await getThumb(song.url, 'small'))
                     .setFooter({ text: `${song.duration} - ${song.url}` })
             }
-            else{
+            else {
                 embed
                     .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL({ dynamics: true }) })
                     .setDescription(`**[${song.title}](${song.url})** has been added to the queue.`)

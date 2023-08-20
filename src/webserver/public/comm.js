@@ -21,6 +21,7 @@ function openPlaylist(id) {
     list.innerHTML = '';
     list.style.fontSize = '9pt'
     backButton.style.display = 'block';
+    document.getElementById('details').innerText = '';
     socket.emit('getSongs', id);
 }
 
@@ -28,8 +29,9 @@ function back() {
     list.innerHTML = '';
     list.style.fontSize = getComputedStyle(document.documentElement).getPropertyValue('--font-size');
     backButton.style = 'none';
+    document.getElementById('details').innerText = '';
     //dropdown.style.display = '';
-    socket.emit('getPlaylists');
+    socket.emit('getPlaylists');   
 }
 
 function editSong(id, action) {

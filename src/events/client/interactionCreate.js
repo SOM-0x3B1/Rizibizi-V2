@@ -1,7 +1,7 @@
 const { dbPool, valueExists } = require('../../utility/db.js');
 const { useMainPlayer } = require('discord-player');
 const crypto = require('crypto');
-const { addNewSongToDB, shortenURL, urlToType, validateYouTubeUrl } = require('../../utility/playlist_utility.js');
+const { addNewSongToDB, shortenURL, urlToType } = require('../../utility/playlist_utility.js');
 
 module.exports = {
     name: 'interactionCreate',
@@ -54,7 +54,7 @@ module.exports = {
                             await addNewSongToDB(conn, song.title, await shortenURL(song.url), id, await urlToType(song.url), i + 1);
                         }
                     }
-                    await interaction.reply(`:page_with_curl: Playlist named **${playlistName}** created from queue successfully. \n ${queue.tracks.size} songs added. \n Global playlist ID: [**${id}**]`);
+                    await interaction.reply(`:page_with_curl: Playlist named **${playlistName}** created from queue successfully. \n ${queue.tracks.size + 1} songs added. \n Global playlist ID: [**${id}**]`);
                 }
                 else
                     await interaction.reply(`:page_with_curl: Playlist named **${playlistName}** created successfully. \n Global playlist ID: [**${id}**]`);

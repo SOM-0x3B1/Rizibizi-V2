@@ -1,9 +1,9 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('@discordjs/builders');
-const { useMainPlayer } = require('discord-player');
+const { useMainPlayer, QueryType } = require('discord-player');
 const { getThumb } = require('../../utility/getThumb.js');
 const { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
 const { dbPool, valueExists } = require('../../utility/db.js');
-const { addNewSongToDB, shortenURL, urlToType, validateYouTubeUrl } = require('../../utility/playlist_utility.js');
+const { addNewSongToDB, shortenURL, urlToType, typeToSource } = require('../../utility/playlist_utility.js');
 const { getQueue } = require('../../utility/getQueue.js');
 const looper = require('./loop.js');;
 const { createCanvas, loadImage } = require('canvas')
@@ -182,14 +182,15 @@ module.exports = {
                     return await interaction.reply(`:warning: The playlist with global ID [**${infoID}**] does not exist.`);
 
                 const infoPlaylistName = infoPlaylists[0].name;
-                const infoSongs = await conn.query("SELECT url, title, type FROM song WHERE playlistID = ?", [infoID]);
+                const infoSongs = await conn.query("SELECT url, title, type FROM song WHERE playlistID = ? ORDER BY position", [infoID]);
 
                 if (infoSongs.length > 0) {
                     let infoString = `\n**Description**\n${infoPlaylists[0].description}\n\n**Tracks** (${infoSongs.length})\n`;
                     for (let i = 0; i < infoSongs.length && i < 10; i++) {
-                        let song = infoSongs[i];
-                        infoString += `**${i + 1}.** [${song.title}](https://www.youtube.com/watch?v=${song.url})\n`;
-                    }
+                        const song = infoSongs[i];
+                        const source = await typeToSource(song.type);
+                        infoString += `**${i + 1}.** [${song.title}](${source + song.url})\n`;
+                    }                    
 
                     const countOfListImages = infoSongs.length > 4 ? 4 : infoSongs.length;
                     const canvas = await createCanvas(120 * (countOfListImages), 90);
@@ -199,7 +200,8 @@ module.exports = {
                     ctx.fillStyle = 'rgba(255,255,255,255)';
 
                     for (let i = 0; i < countOfListImages; i++) {
-                        const listImage = await loadImage(await getThumb('https://www.youtube.com/watch?v=' + infoSongs[i].url, 'small'));
+                        const source = await typeToSource(infoSongs[i].type);
+                        const listImage = await loadImage(await getThumb(source + infoSongs[i].url, 'small'));
                         await ctx.drawImage(listImage, 120 * (i), 0, 120, 90);
                         await drawStrokedText(ctx, `${i + 1}.`, 120 * (i) + 2, 20);
                     }
@@ -207,7 +209,7 @@ module.exports = {
                     await interaction.reply({
                         embeds: [
                             new EmbedBuilder()
-                                .setTitle(infoPlaylistName)
+                                .setTitle('Playlist: ' + infoPlaylistName)
                                 .setDescription(infoString)
                                 .setImage('attachment://img.png')
                                 .setFooter({ text: `Global ID:  ${infoID} \nEditor:        ${infoPlaylists[0].eName}` })
@@ -280,9 +282,9 @@ module.exports = {
                         break;
 
                     case addTypes.OTHER_PLAYLIST:
-                        const addOtherPlaylisID = await shortenURL(interaction.options.getString('url_or_id'));
+                        const addOtherPlaylisID = interaction.options.getString('url_or_id');
                         if (await valueExists(conn, 'song', 'playlistID', addOtherPlaylisID)) {
-                            const addOtherSongs = await conn.query("SELECT url, title, type FROM song WHERE playlistID = ?", [addOtherPlaylisID]);
+                            const addOtherSongs = await conn.query("SELECT url, title, type FROM song WHERE playlistID = ? ORDER BY position", [addOtherPlaylisID]);
                             if (addOtherSongs.length === 0)
                                 return await interaction.reply(`:warning: Playlist [**${addOtherPlaylisID}**] is empty.`);
 
@@ -306,7 +308,7 @@ module.exports = {
                     return await interaction.reply(`:warning: The playlist with global ID [**${playID}**] does not exist.`);
 
                 const playPlaylistName = playPlaylists[0].name;
-                const songs = await conn.query("SELECT url, type FROM song WHERE playlistID = ?", [playID]);
+                const songs = await conn.query("SELECT url, type FROM song WHERE playlistID = ? ORDER BY position", [playID]);
 
                 if (songs.length > 0) {
                     const player = useMainPlayer();
@@ -324,9 +326,12 @@ module.exports = {
 
                     await interaction.reply(`:arrow_down: Loading **${songs.length}** tracks from playlist **${playPlaylistName}** [${playID}].`);
 
-                    let first = false;
+                    let first = true;
+                    let firstSource = '';
                     for (const song of songs) {
-                        const url = 'https://www.youtube.com/watch?v=' + song.url;
+                        const source = await typeToSource(song.type);
+
+                        const url = source + song.url;
                         const res = await player.search(url, {
                             requestedBy: interaction.user,
                             searchEngine: song.type
@@ -334,9 +339,10 @@ module.exports = {
                         if (await res.hasTracks())
                             await queue.addTrack(res.tracks[0]);
 
-                        if (!first) {
+                        if (first) {
                             await queue.node.play();
-                            first = true;
+                            first = false;
+                            firstSource = source;
                         }
                     }
 
@@ -349,7 +355,7 @@ module.exports = {
                     const embed = new EmbedBuilder()
                         .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL({ dynamics: true }) })
                         .setDescription(`**${songs.length}** songs from playlist **${playPlaylistName}** [${playID}] has been added to the queue.`)
-                        .setThumbnail(await getThumb('https://www.youtube.com/watch?v=' + songs[0].url, 'small'));
+                        .setThumbnail(await getThumb(firstSource + songs[0].url, 'small'));
 
                     await interaction.followUp({ embeds: [embed] });
                 }

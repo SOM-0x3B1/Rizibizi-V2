@@ -164,7 +164,7 @@ async function sendStats(socket) {
 }
 
 async function sendPlaylists(conn, socket, editorID) {
-    const playlists = await conn.query("SELECT playlist.id as pID, playlist.name as pName, playlist.description as pDesc, guild.name as gName FROM playlist INNER JOIN guild ON playlist.guildID = guild.dcID WHERE playlist.editorID = ?", [editorID]);
+    const playlists = await conn.query("SELECT playlist.id as pID, playlist.name as pName, playlist.description as pDesc, guild.name as gName FROM playlist INNER JOIN guild ON playlist.guildID = guild.dcID WHERE playlist.editorID = ? ORDER BY playlist.name", [editorID]);
     socket.emit('sendPlaylists', { success: true, pLists: playlists });
 }
 

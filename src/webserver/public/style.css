@@ -186,7 +186,8 @@ h1 {
 #details{
     overflow-y: auto;
     line-height: 1.5em;    
-    height: 80%;  
+    height: 80%;
+    word-wrap: break-word;
 }
 
 
