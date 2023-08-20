@@ -3,7 +3,7 @@ const { useMainPlayer, AudioFilters } = require('discord-player');
 
 //AudioFilters.define("softBassBoost", "equalizer=f=70:t=h:width=50:g=5:r=f64,equalizer=f=200:t=h:width=100:g=10:r=f64,equalizer=f=8000:t=h:width=4000:g=7:r=f64");
 //AudioFilters.define("softBassBoost", "bass=g=5");
-AudioFilters.define("softBassBoost", "equalizer=f=70:t=h:width=100:g=2:r=f64,equalizer=f=180:t=h:width=120:g=3:r=f64,equalizer=f=10000:t=h:width=9880:g=-5:r=f64");
+AudioFilters.define("softBassBoost", "equalizer=f=70:t=h:width=100:g=3:r=f64,equalizer=f=180:t=h:width=120:g=3:r=f64,equalizer=f=3000:t=h:width=5760:g=-7:r=f64");
 
 const effectStatuses = {'softBassBoost': false, 'bassboost': false, 'nightcore': false, '8D': false};
 
