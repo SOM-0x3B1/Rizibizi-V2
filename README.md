@@ -1,7 +1,7 @@
 # Rizibizi 2.0
 
 <img align="right" src="https://music.onekilobit.eu/media/pot-lid3.gif">
-A fairly advanced music bot for Discord maintained by Onekilobit Servers.
+A fairly advanced music bot for Discord.
 
 ## Highlighted features
 - YouTube, Spotify and Discord attachment support
@@ -13,9 +13,9 @@ A fairly advanced music bot for Discord maintained by Onekilobit Servers.
 ## Commands
 
 ### Music
-- **/play** - Load music from an online source
+- **/play** - Loads music from an online source
   - **query** - The url, or searchterms you want to use (required)
-  - **specify** - The search engine you want to use (optional) 
+  - **specify** - The search engine you want to use (partially optional) 
     - "! YouTube search" - (recommended)
     - "! Spotify search" - (recommended)
     - ... - URLs are automatically recognised (optional)
@@ -24,51 +24,55 @@ A fairly advanced music bot for Discord maintained by Onekilobit Servers.
 - **/plist** - Playlist management
   - **create** - Gives you a playlist creating modal
     - **from_queue** - Fills the new playlist with the queue after creation (optional)
-  - **add**
-    - **id**
-    - **add_type**
+  - **add** - Add track(s) to a playlist
+    - **id** - The ID of the playlist (required)
+    - **add_type** - What do you want to add? (required)
       - "current_song"
       - "queue"
       - "url"
-      - "other_playlist"
-  - **edit**
-  - **list**
-    - **list_type**
-      - "server_playlists"
-      - "my_playlists"
-  - **info**
-    - **id**
-  - **play**
-    - **id** 
-    - **loop**
-    - **shuffle**
-  - **delete**
-    - **id**
-- **/check_queue**
-  - **page**
-- **/effect**
-  - **filter**
+        - **url** (required)
+      - "other_playlist" - Basically clones playlist 'B' into playlist 'A'
+        - **id** - The ID of playlist 'B' (required)
+  - **edit** - Gives you your *login key* and the website (https://music.onekilobit.eu/) where you can edit your playlist
+  - **list** - Lists playlists
+    - **list_type** - Which list do you want to see? (required)
+      - "server_playlists" - Playlists of the server
+      - "my_playlists" - Playlists created by you, including from other servers
+  - **info** - Details about a playlist
+    - **id** - The ID of the playlist (required)
+  - **play** - Plays a playlist
+    - **id** - The ID of the playlist (required)
+    - **loop** - Should the loaded track(s) be looped? (optional)
+    - **shuffle** - Should the loaded track(s) be shuffled? (optional)
+  - **delete** - Deletes a playlist
+    - **id** - The ID of the playlist (required)
+- **/check_queue** - Displays the queue including songs, thumbnails, loops, etc
+  - **page** - (optional)
+- **/effect** - Applies real-time effects to the queue
+  - **filter** - The effect (required)
     - "soft bass boost"
     - "hard bass boost"
     - "nigthcore"
     - "8D"
-- **/loop**
-  - **mode**
+- **/loop** - Loops something(s)
+  - **mode** - (required)
     - "off"
     - "loop current song"
     - "loop queue"
     - "autoplay related songs"
-- **/shuffle**
-- **/pause**
-- **/resume**
-- **/progress**
-- **/skip**
-  - **skip_to_index**
-- **/replay**
-- **/clear_queue**
-- **/quit**
+- **/shuffle** - Shuffles the queue
+- **/pause** - Pauses the song
+- **/resume** - Resumes the song
+- **/progress** - Shows a fancy progress bar
+- **/skip** - Skip a song / multiple songs
+  - **skip_to_index** - Index of the song in the queue to jump to (optional)
+- **/replay** - Replays the previously played song (doesn't work when loop is on)
+- **/remove** - Removes a song from the queue
+  - **index** - (required)
+- **/clear_queue** - Clears the queue
+- **/quit** - Deletes the queue and disconnects
   
 ### Other
-- **/about**
-- **/ping**
+- **/about** - Info about the bot
+- **/ping** - Measures the latency of the bot in milliseconds
 
