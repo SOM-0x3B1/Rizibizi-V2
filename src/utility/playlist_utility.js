@@ -9,7 +9,7 @@ module.exports = {
     async shortenURL(url) {
         if (url.startsWith('https://www.youtube.com/watch?v='))
             return url.split('=')[1];
-        else if (url.includes('spotify.com/'))
+        else if (url.startsWith('https://open.spotify.com/'))
             return url.split('/')[4];
         else
             return url;
@@ -17,7 +17,7 @@ module.exports = {
     async urlToType(query) {
         if (query.startsWith('https://www.youtube.com/'))
             return QueryType.YOUTUBE_VIDEO;
-        else if (query.includes('spotify.com/'))
+        else if (query.startsWith('https://open.spotify.com/'))
             return QueryType.SPOTIFY_SONG;
         else if (query.startsWith('https://cdn.discordapp.com/attachments/'))
             return QueryType.ARBITRARY;

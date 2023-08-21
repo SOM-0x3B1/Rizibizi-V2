@@ -3,14 +3,14 @@ module.exports = {
         if (url === null)
             return '';
 
-        if (url.includes('youtube.com/')) {
+        if (url.startsWith('youtube.com/')) {
             size = (size === null) ? 'big' : size;
             results = url.match('[\\?&]v=([^&#]*)');
             video = (results === null) ? url : results[1];
 
             return 'http://img.youtube.com/vi/' + video + '/0.jpg';
         }
-        else if (url.includes('spotify.com/')) {
+        else if (url.startsWith('https://open.spotify.com/')) {
             let newUrl = 'https://embed.spotify.com/oembed/?url=spotify:';
 
             if (url.includes('/track/'))

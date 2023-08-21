@@ -44,9 +44,9 @@ module.exports = {
             await queue.createDispatcher(connection);*/
             await queue.connect(interaction.member.voice.channel);
         }
-        else if(!interaction.member.voice.channel)
+        else if (!interaction.member.voice.channel)
             return interaction.reply(':warning: You need to be in a VC to use this command.');
-else if (interaction.member.voice.channel.id != queue.channel.id)
+        else if (interaction.member.voice.channel.id != queue.channel.id)
             return interaction.reply(':warning: You need to be in the same VC as the bot to use this command.');
 
 
