@@ -5,7 +5,7 @@ const { useMainPlayer, AudioFilters } = require('discord-player');
 //AudioFilters.define("softBassBoost", "bass=g=5");
 AudioFilters.define("softBassBoost", "equalizer=f=70:t=h:width=100:g=3:r=f64,equalizer=f=180:t=h:width=120:g=3:r=f64,equalizer=f=3000:t=h:width=5760:g=-7:r=f64");
 
-const effectStatuses = {'softBassBoost': false, 'bassboost': false, 'nightcore': false, '8D': false};
+const effectStatuses = {};
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -31,7 +31,12 @@ module.exports = {
         const filter = interaction.options.getString('filter');
         await queue.filters.ffmpeg.toggle([filter]);
 
-        effectStatuses[filter] = !effectStatuses[filter];
+        const guildID = interaction.channel.guild.id;
+
+        if(!effectStatuses[interaction.guildId])
+            effectStatuses[interaction.guildId] = {'softBassBoost': false, 'bassboost': false, 'nightcore': false, '8D': false};
+
+        effectStatuses[guildID][filter] = !effectStatuses[guildID][filter];
 
         let filterName;
         switch (filter) {
@@ -45,6 +50,6 @@ module.exports = {
                 filterName = filter;
                 break;
         }
-        await interaction.reply(`:fire: Toggled **${filterName}** effect **${effectStatuses[filter] ? 'ON' : 'OFF'}**.`);
+        await interaction.reply(`:fire: Toggled **${filterName}** effect **${effectStatuses[guildID][filter] ? 'ON' : 'OFF'}**.`);
     }
 }
