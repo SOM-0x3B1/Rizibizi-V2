@@ -64,9 +64,12 @@ module.exports = {
 
         const io = new Server(server);
 
+        const loginAttempts = {};
+
         io.on('connection', (socket) => {
             let authenticated = false;
             let editorID;
+            const address = socket.handshake.address;
 
             sendStats(socket);
             const x = setInterval(() => {
@@ -81,18 +84,27 @@ module.exports = {
                 if (key.length != 16)
                     return socket.emit('confirmLogin', { success: false, message: 'Invalid key length' });
 
-                const conn = await dbPool.getConnection();
-                const editors = await conn.query("SELECT id, name FROM editor WHERE editor.key = ?", [key]);
-                if (editors.length != 0) {
-                    const editor = editors[0];
-                    editorID = editor.id
-                    authenticated = true;
-                    socket.emit('confirmLogin', { success: true, eName: editor.name });
-                    await sendPlaylists(conn, socket, editorID);
+                if (!loginAttempts[address])
+                    loginAttempts[address] = 1;
+                else if (loginAttempts[address] < 30)
+                    loginAttempts[address]++;
+
+                if (loginAttempts[address] < 6) {
+                    const conn = await dbPool.getConnection();
+                    const editors = await conn.query("SELECT id, name FROM editor WHERE editor.key = ?", [key]);
+                    if (editors.length != 0) {
+                        const editor = editors[0];
+                        editorID = editor.id
+                        authenticated = true;
+                        socket.emit('confirmLogin', { success: true, eName: editor.name });
+                        await sendPlaylists(conn, socket, editorID);
+                    }
+                    else
+                        socket.emit('confirmLogin', { success: false, message: 'Invalid key' });
+                    conn.end();
                 }
                 else
-                    socket.emit('confirmLogin', { success: false, message: 'Invalid key' });
-                conn.end();
+                    socket.emit('confirmLogin', { success: false, message: `Too many login attempts.\nYou've been locked out for ${(loginAttempts[address] - 5) * 2} minutes.` });
             })
 
             socket.on('getSongs', async (playlistID) => {
@@ -149,6 +161,14 @@ module.exports = {
                 }
             });
         });
+
+        setInterval(() => {
+            for (const key in loginAttempts) {
+                loginAttempts[key]--;
+                if (loginAttempts[key] == 0)
+                    delete loginAttempts[key];
+            }
+        }, 120000);
     }
 }
 
