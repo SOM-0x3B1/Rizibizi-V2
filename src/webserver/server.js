@@ -6,10 +6,19 @@ const { join } = require('path');
 const fs = require('fs');
 const { dbPool, valueExists } = require('../utility/db.js');
 const { Server } = require('socket.io');
+const rateLimit = require('express-rate-limit');
 
 const privateKey = fs.readFileSync('src/webserver/cert/onekilobit.eu-key.pem', 'utf8');
 const certificate = fs.readFileSync('src/webserver/cert/onekilobit.eu-chain.pem', 'utf8');
 const credentials = { key: privateKey, cert: certificate };
+
+
+const limiter = rateLimit({
+	windowMs: 2 * 60 * 1000, // 2 minutes
+	max: 100,
+	standardHeaders: true,
+	legacyHeaders: true,
+});
 
 const app = express();
 
@@ -17,6 +26,8 @@ let visits = 0;
 
 app.disable('x-powered-by')
 
+app.set('trust proxy', 1);
+app.use(limiter)
 app.use(urlencoded({ extended: true, limit: '3mb' }));
 //app.use(bodyParser.json());
 app.use(express.static('/public/'));
@@ -24,6 +35,7 @@ app.use(express.static('/public/'));
 
 app.get('/', (_, res) => {
     res.sendFile(join(__dirname, '/public/index.html'));
+    visits++;
 });
 
 app.get('*', (req, res) => {
