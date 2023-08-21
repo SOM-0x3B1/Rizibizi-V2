@@ -26,7 +26,12 @@ module.exports = {
         const queue = player.nodes.get(interaction.guildId);
 
         if (!queue)
-            return await interaction.reply(':warning: Error.');
+            return await interaction.reply(':warning: Error. The queue is offline.');
+
+        if(!interaction.member.voice.channel)
+            return interaction.reply(':warning: You need to be in a VC to use this command.');
+        else if (interaction.member.voice.channel.id != queue.channel.id)
+            return interaction.reply(':warning: You need to be in the same VC as the bot to use this command.');
 
         const filter = interaction.options.getString('filter');
         await queue.filters.ffmpeg.toggle([filter]);

@@ -10,6 +10,14 @@ module.exports = {
         const player = useMainPlayer();
         const queue = player.nodes.get(interaction.guildId);
 
+        if (!queue)
+            return await interaction.reply(':warning: Error. The queue is offline.');
+
+        if(!interaction.member.voice.channel)
+            return interaction.reply(':warning: You need to be in a VC to use this command.');
+        else if (interaction.member.voice.channel.id != queue.channel.id)
+            return interaction.reply(':warning: You need to be in the same VC as the bot to use this command.');
+
         if (queue.repeatMode != 2) {
             const history = useHistory(interaction.guild.id);
 

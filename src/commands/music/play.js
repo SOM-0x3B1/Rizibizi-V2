@@ -4,7 +4,8 @@ const { useMainPlayer, QueryType } = require('discord-player');
 const { getThumb } = require('../../utility/getThumb.js');
 const looper = require('./loop.js');
 const { getQueue } = require('../../utility/getQueue.js');
-const { urlToType } = require('../../utility/playlist_utility.js');
+//const { VoiceConnection, VoiceConnectionStatus, joinVoiceChannel } = require('@discordjs/voice');
+
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -27,16 +28,66 @@ module.exports = {
         .addBooleanOption((option) => option.setName('loop').setDescription('Should I loop this song / playlist?'))
         .addBooleanOption((option) => option.setName('shuffle').setDescription('Should I shuffle this playlist?')),
     async execute(interaction, client) {
-        const player = useMainPlayer()
+        let player = useMainPlayer();
 
         if (!interaction.member.voice.channel)
             return interaction.reply(':warning: You need to be in a VC to use this command.');
 
-        const queue = await getQueue(player, interaction);
+        let queue = await getQueue(player, interaction);
 
-        if (!queue.connection || interaction.member.voice.channel != queue.channel) {
+        if (!queue.connection) {
+            /*const connection = await joinVoiceChannel({
+                channelId: interaction.member.voice.channel.id,
+                guildId: interaction.channel.guild.id,
+                adapterCreator: interaction.channel.guild.voiceAdapterCreator,
+            });
+            await queue.createDispatcher(connection);*/
             await queue.connect(interaction.member.voice.channel);
         }
+        else if(!interaction.member.voice.channel)
+            return interaction.reply(':warning: You need to be in a VC to use this command.');
+else if (interaction.member.voice.channel.id != queue.channel.id)
+            return interaction.reply(':warning: You need to be in the same VC as the bot to use this command.');
+
+
+        /*else if (interaction.member.voice.channel.id != queue.channel.id) {
+            //const tracksClone = await queue.tracks.clone();
+
+            await new Promise(resolve => {
+                queue.connection.on(VoiceConnectionStatus.Destroyed, resolve);
+                queue.dispatcher.disconnect();
+            });
+            const connection = joinVoiceChannel({
+                channelId: interaction.member.voice.channel.id,
+                guildId: interaction.channel.guild.id,
+                adapterCreator: interaction.channel.guild.voiceAdapterCreator,
+            });
+            if (connection.state != VoiceConnectionStatus.Ready) {
+                await new Promise(resolve => {
+                    connection.on(VoiceConnectionStatus.Ready, resolve)
+                });
+            }
+            
+            player = await useMainPlayer();
+            player.nodes.delete(interaction.guildId);
+            queue = await player.nodes.create(interaction.guild, {
+                metadata: {
+                    channel: interaction.channel,
+                    client: interaction.guild.members.me,
+                    requestedBy: interaction.user,
+                },
+                selfDeaf: false,
+                volume: 20,
+                leaveOnEmpty: true,
+                leaveOnEmptyCooldown: 300000,
+                leaveOnEnd: true,
+                leaveOnEndCooldown: 300000,
+            });
+            await queue.createDispatcher(connection);
+
+            for (const track of tracksClone.data)
+                await queue.addTrack(tracksClone.data);
+        }*/
 
         let embed = new EmbedBuilder();
 

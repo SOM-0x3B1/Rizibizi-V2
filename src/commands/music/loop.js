@@ -11,7 +11,7 @@ module.exports = {
                 .setRequired(true)
                 .addChoices(
                     { name: 'off', value: 0 },
-                    { name: 'loop current music', value: 1 },
+                    { name: 'loop current song', value: 1 },
                     { name: 'loop queue', value: 2 },
                     { name: 'autoplay related songs', value: 3 }
                 )),
@@ -21,6 +21,11 @@ module.exports = {
 
         if (!queue || (!queue.currentTrack && !externalMode))
             return await interaction.reply(':warning: There are no songs in the queue.');
+
+        if(!interaction.member.voice.channel)
+            return interaction.reply(':warning: You need to be in a VC to use this command.');
+        else if (interaction.member.voice.channel.id != queue.channel.id)
+            return interaction.reply(':warning: You need to be in the same VC as the bot to use this command.');
 
         const mode = externalMode ?? interaction.options.getNumber('mode');
         let modeName = ['off', 'music loop', 'queue loop', 'autoplay'][mode];

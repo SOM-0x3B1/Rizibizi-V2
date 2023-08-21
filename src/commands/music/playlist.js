@@ -190,7 +190,7 @@ module.exports = {
                         const song = infoSongs[i];
                         const source = await typeToSource(song.type);
                         infoString += `**${i + 1}.** [${song.title}](${source + song.url})\n`;
-                    }                    
+                    }
 
                     const countOfListImages = infoSongs.length > 4 ? 4 : infoSongs.length;
                     const canvas = await createCanvas(120 * (countOfListImages), 90);
@@ -316,13 +316,14 @@ module.exports = {
                     const shouldLoop = interaction.options.getBoolean('loop');
                     const shouldShuffle = interaction.options.getBoolean('shuffle');
 
-                    if (!interaction.member.voice.channel)
-                        return interaction.reply(':warning: You need to be in a VC to use this command.');
-
                     const queue = await getQueue(player, interaction);
 
                     if (!queue.connection)
                         await queue.connect(interaction.member.voice.channel);
+                    else if (!interaction.member.voice.channel)
+                        return interaction.reply(':warning: You need to be in a VC to use this command.');
+                    else if (interaction.member.voice.channel.id != queue.channel.id)
+                        return interaction.reply(':warning: You need to be in the same VC as the bot to use this command.');
 
                     await interaction.reply(`:arrow_down: Loading **${songs.length}** tracks from playlist **${playPlaylistName}** [${playID}].`);
 

@@ -1,7 +1,7 @@
 module.exports = {
     async getQueue(player, interaction) {
         let queue = player.nodes.get(interaction.guildId);
-        if (!queue) {
+        if (!queue) {            
             queue = await player.nodes.create(interaction.guild, {
                 metadata: {
                     channel: interaction.channel,

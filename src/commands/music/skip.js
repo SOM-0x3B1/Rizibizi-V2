@@ -13,6 +13,11 @@ module.exports = {
         if (!queue || !queue.currentTrack)
             return await interaction.reply(':warning: There are no songs in the queue.');
 
+        if (!interaction.member.voice.channel)
+            return interaction.reply(':warning: You need to be in a VC to use this command.');
+        else if (interaction.member.voice.channel.id != queue.channel.id)
+            return interaction.reply(':warning: You need to be in the same VC as the bot to use this command.');
+
         const index = interaction.options.getNumber('to_index') ?? 1;
         if (index > 1) {
             let max = queue.tracks.size - 1;

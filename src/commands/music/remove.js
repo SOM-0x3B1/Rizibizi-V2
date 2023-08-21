@@ -13,11 +13,16 @@ module.exports = {
         if (!queue || !queue.currentTrack)
             return await interaction.reply(':warning: There are no songs in the queue.');
 
+        if(!interaction.member.voice.channel)
+            return interaction.reply(':warning: You need to be in a VC to use this command.');
+        else if (interaction.member.voice.channel.id != queue.channel.id)
+            return interaction.reply(':warning: You need to be in the same VC as the bot to use this command.');
+
         const trackNumber = interaction.options.getNumber('index') ?? queue.tracks.size;
-        if(trackNumber > queue.tracks.size)
+        if (trackNumber > queue.tracks.size)
             return await interaction.reply(':warning: Index out of range.');
 
-        const removedName = queue.tracks.data[trackNumber - 1].title; 
+        const removedName = queue.tracks.data[trackNumber - 1].title;
         queue.removeTrack(trackNumber - 1); //index 0 is the currently playing song
         await interaction.reply(`:put_litter_in_its_place: Removed **${removedName}** at index ${trackNumber}.`);
     }
