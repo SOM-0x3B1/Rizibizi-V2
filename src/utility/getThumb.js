@@ -3,7 +3,7 @@ module.exports = {
         if (url === null)
             return '';
 
-        if (url.startsWith('youtube.com/')) {
+        if (url.includes('youtube.com/')) {
             size = (size === null) ? 'big' : size;
             results = url.match('[\\?&]v=([^&#]*)');
             video = (results === null) ? url : results[1];

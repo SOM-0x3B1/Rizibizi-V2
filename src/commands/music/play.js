@@ -4,6 +4,7 @@ const { useMainPlayer, QueryType } = require('discord-player');
 const { getThumb } = require('../../utility/getThumb.js');
 const looper = require('./loop.js');
 const { getQueue } = require('../../utility/getQueue.js');
+const { urlToType } = require('../../utility/playlist_utility.js');
 //const { VoiceConnection, VoiceConnectionStatus, joinVoiceChannel } = require('@discordjs/voice');
 
 
@@ -98,7 +99,7 @@ module.exports = {
         let query = interaction.options.getString('query');
         let type = interaction.options.getString('specify');
         if (!type) {
-            if (query.startsWith('https://youtu.be/') || query.startsWith('https://www.youtube.com/')) {
+            if (query.startsWith('https://youtu.be/') || query.startsWith('https://www.youtube.com/') || query.startsWith('https://music.youtube.com/')) {
                 if (query.includes('playlist?') || query.includes('&list=')) {
                     type = QueryType.YOUTUBE_PLAYLIST;
                     if (!query.includes('playlist?'))
@@ -107,7 +108,7 @@ module.exports = {
                 else
                     type = QueryType.YOUTUBE_VIDEO;
             }
-            else if (query.includes('spotify.com/')) {
+            else if (query.startsWith('https://open.spotify.com/')) {
                 if (query.includes('/track/'))
                     type = QueryType.SPOTIFY_SONG;
                 else if (query.includes('/playlist/'))
@@ -135,7 +136,7 @@ module.exports = {
             const song = res.tracks[0];
             await queue.addTrack(song);
 
-            if (type != QueryType.ARBITRARY) {
+            if (type != QueryType.ARBITRARY && urlToType(song.url) != QueryType.ARBITRARY) {
                 embed
                     .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL({ dynamics: true }) })
                     .setDescription(`**[${song.title}](${song.url})** has been added to the queue.`)
