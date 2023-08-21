@@ -19,7 +19,7 @@ function login() {
 
 function openPlaylist(id) {
     list.innerHTML = '';
-    list.style.fontSize = '9pt'
+    list.style.fontSize = '1.4vmin'
     backButton.style.display = 'block';
     document.getElementById('details').innerText = '';
     socket.emit('getSongs', id);
@@ -102,8 +102,8 @@ async function addMouseEvent(song, url, li, i){
             document.getElementById('details').innerText = `TITLE: ${song.sTitle}\nTYPE: ${song.type} \nURL: ${url}`;
             li.appendChild(dropdown);
             document.getElementById('sDelete').onclick = () => { editSong(song.sID, 'sDelete') };
-            document.getElementById('sUp').onclick = () => { editSong(song.sID, 'sUp'); dropdownLock = true; movedLiIndex = i - 2; };
-            document.getElementById('sDown').onclick = () => { editSong(song.sID, 'sDown'); dropdownLock = true; movedLiIndex = i; };
+            document.getElementById('sUp').onclick = () => { editSong(song.sID, 'sUp'); /*dropdownLock = true*/; movedLiIndex = i - 2; };
+            document.getElementById('sDown').onclick = () => { editSong(song.sID, 'sDown'); /*dropdownLock = true*/; movedLiIndex = i; };
             //dropdown.style.display = '';
         }
         else
