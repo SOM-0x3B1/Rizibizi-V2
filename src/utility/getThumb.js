@@ -26,9 +26,14 @@ module.exports = {
                 method: 'GET',
                 headers: { 'Accept': 'application/json' },
             });
-            const json = await response.json();
 
-            return json.thumbnail_url;
+            try {
+                const json = await response.json();
+                return json.thumbnail_url;
+            }
+            catch {
+                return 'https://music.onekilobit.eu/media/missing_file.png';
+            }
         }
         else {
             return 'https://music.onekilobit.eu/media/discord.png';

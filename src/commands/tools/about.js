@@ -15,7 +15,7 @@ module.exports = {
             .setDescription(
                 "A fun lil rizibizi bot for music and stuff.\n\n" +
                 "**Features**\n" +
-                "- Advanced music support (YouTube, Spotify, Discord)\n" +
+                "- Advanced music support (YouTube, Spotify, Discord attachments)\n" +
                 "- Real-time effects (bass boost, nightcore, 8D)\n" +
                 "- Local and global playlist management\n" +
                 "- Web GUI for playlist editing (https://music.onekilobit.eu/)\n"
