@@ -266,16 +266,50 @@ module.exports = {
                         break;
 
                     case addTypes.URL:
-                        const url = interaction.options.getString('url_or_id');
+                        let url = interaction.options.getString('url_or_id');
+                        let type;
+                        if (url.startsWith('https://youtu.be/') || url.startsWith('https://www.youtube.com/') || url.startsWith('https://music.youtube.com/')) {
+                            if (url.includes('playlist?') || url.includes('&list=')) {
+                                type = QueryType.YOUTUBE_PLAYLIST;
+                                if (!url.includes('playlist?'))
+                                    url = 'https://www.youtube.com/playlist?list=' + url.split('=')[2].split('&')[0];
+                            }
+                            else
+                                type = QueryType.YOUTUBE_VIDEO;
+                        }
+                        else if (url.startsWith('https://open.spotify.com/')) {
+                            if (url.includes('/track/'))
+                                type = QueryType.SPOTIFY_SONG;
+                            else if (url.includes('/playlist/'))
+                                type = QueryType.SPOTIFY_PLAYLIST;
+                            else if (url.includes('/album/'))
+                                type = QueryType.SPOTIFY_ALBUM;
+                        }
+                        else if (url.startsWith('https://cdn.discordapp.com/attachments/')) {
+                            type = QueryType.ARBITRARY;
+                        }
+                        else
+                            type = QueryType.AUTO;
+
                         const searchedSongs = await player.search(url, {
                             requestedBy: interaction.user,
-                            searchEngine: await urlToType(url)
+                            searchEngine: type
                         });
 
                         if (searchedSongs.hasTracks()) {
-                            const song = searchedSongs.tracks[0];
-                            await addNewSongToDB(conn, song.title, await shortenURL(url), addID, await urlToType(url), startIndex);
-                            await interaction.reply(`:bookmark_tabs: Song **${song.title}** added to **${addPlaylistName}** [${addID}].`);
+                            if (searchedSongs.hasPlaylist()) {
+                                const playlist = searchedSongs.playlist;
+                                for (let i = 0; i < searchedSongs.tracks.length; i++) {
+                                    const song = searchedSongs.tracks[i];
+                                    await addNewSongToDB(conn, song.title, await shortenURL(song.url), addID, await urlToType(url), startIndex + i);
+                                }
+                                await interaction.reply(`:bookmark_tabs: **${searchedSongs.tracks.length}** songs from **[${playlist.title}](${playlist.url})** added to **${addPlaylistName}** [${addID}].`);
+                            }
+                            else {
+                                const song = searchedSongs.tracks[0];
+                                await addNewSongToDB(conn, song.title, await shortenURL(song.url), addID, await urlToType(url), startIndex);
+                                await interaction.reply(`:bookmark_tabs: Song **[${song.title}](${song.url})** added to **${addPlaylistName}** [${addID}].`);
+                            }
                         }
                         else
                             return await interaction.reply(`:warning: Song not found.`);
