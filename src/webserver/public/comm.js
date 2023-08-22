@@ -79,9 +79,22 @@ socket.on('sendSongs', async (data) => {
             li.innerText = `${i}. ${song.sTitle}`;
             li.className = 'song';
             li.style.padding = '1ex'
-            list.appendChild(li);            
+            list.appendChild(li);       
+            
+            let source;
+            switch(song.type){
+                case 'youtubeVideo':
+                    source = 'https://youtu.be/';
+                    break;
+                case 'spotifySong':
+                    source = 'https://open.spotify.com/track/';
+                    break;
+                case 'arbitrary':
+                    source = '';
+                    break;
+            }
 
-            const url = 'https://youtu.be/' + song.url;            
+            const url = source + song.url;            
             await addMouseEvent(song, url, li, i);
             i++;
         }

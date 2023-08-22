@@ -35,7 +35,7 @@ app.use(express.static('/public/'));
 
 app.get('/', (_, res) => {
     res.sendFile(join(__dirname, '/public/index.html'));
-    visits++;
+    //visits++;
 });
 
 app.get('*', (req, res) => {
@@ -109,10 +109,13 @@ module.exports = {
                         editorID = editor.id
                         authenticated = true;
                         socket.emit('confirmLogin', { success: true, eName: editor.name });
+                        console.log(editor.name + ' logged in');
                         await sendPlaylists(conn, socket, editorID);
                     }
-                    else
+                    else{
+                        console.log(address + ' locked out ' + loginAttempts[address]);
                         socket.emit('confirmLogin', { success: false, message: 'Invalid key' });
+                    }
                     conn.end();
                 }
                 else
