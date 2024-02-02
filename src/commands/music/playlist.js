@@ -186,7 +186,7 @@ module.exports = {
 
                 if (infoSongs.length > 0) {
                     let infoString = `\n**Description**\n${infoPlaylists[0].description}\n\n**Tracks** (${infoSongs.length})\n`;
-                    for (let i = 0; i < infoSongs.length && i < 10; i++) {
+                    for (let i = 0; i < infoSongs.length; i++) {
                         const song = infoSongs[i];
                         const source = await typeToSource(song.type);
                         infoString += `**${i + 1}.** [${song.title}](${source + song.url})\n`;

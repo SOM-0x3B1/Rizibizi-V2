@@ -100,6 +100,7 @@ module.exports = {
         let type = interaction.options.getString('specify');
         if (!type) {
             if (query.startsWith('https://youtu.be/') || query.startsWith('https://www.youtube.com/') || query.startsWith('https://music.youtube.com/')) {
+                console.log("Detected YouTube URL");
                 if (query.includes('playlist?') || query.includes('&list=')) {
                     type = QueryType.YOUTUBE_PLAYLIST;
                     if (!query.includes('playlist?'))
@@ -109,6 +110,7 @@ module.exports = {
                     type = QueryType.YOUTUBE_VIDEO;
             }
             else if (query.startsWith('https://open.spotify.com/')) {
+                console.log("Detected Spotify URL");
                 if (query.includes('/track/'))
                     type = QueryType.SPOTIFY_SONG;
                 else if (query.includes('/playlist/'))
@@ -117,11 +119,17 @@ module.exports = {
                     type = QueryType.SPOTIFY_ALBUM;
             }
             else if (query.startsWith('https://cdn.discordapp.com/attachments/')) {
+                console.log("Detected ARBITRARY");
                 type = QueryType.ARBITRARY;
             }
-            else
-                type = QueryType.AUTO;
+            else{
+                console.log("Detected AUTO");
+                type = QueryType.AUTO;   
+            }
         }
+
+        console.log('Playing: ' + query);
+
 
         //== Play =================================================
         const res = await player.search(query, {
