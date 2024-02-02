@@ -1,8 +1,13 @@
 const socket = io();
 
 const list = document.getElementById('list');
-const dropdown = document.getElementById('sDropdown');
+const pListDropdown = document.getElementById('pDropdown');
+const songDropdown = document.getElementById('sDropdown');
 const backButton = document.getElementById('back');
+const submitButton = document.getElementById('submit');
+
+const nameEditor = document.getElementById('descEditor');
+const descEditor = document.getElementById('descEditor');
 
 var dropdownLock = false;
 var movedLiIndex;
@@ -25,13 +30,32 @@ function openPlaylist(id) {
     socket.emit('getSongs', id);
 }
 
+
+function openNameEditor(id){
+    
+}
+
+function openDescEditor(id){
+
+}
+
+
 function back() {
     list.innerHTML = '';
     list.style.fontSize = getComputedStyle(document.documentElement).getPropertyValue('--font-size');
     backButton.style = 'none';
     document.getElementById('details').innerText = '';
     //dropdown.style.display = '';
-    socket.emit('getPlaylists');   
+    socket.emit('getPlaylists');
+}
+
+function editPlayList(id, action) {
+    descEditor.style.display = "none";
+    if(action == "pRename")
+        socket.emit('editPlaylist', id, action, nameEditor.value);
+    else if(action == "pEditDesc")
+        socket.emit('editPlaylist', id, action, descEditor.value);
+    descEditor.value = '';
 }
 
 function editSong(id, action) {
@@ -60,12 +84,13 @@ socket.on('sendPlaylists', (data) => {
     let i = 1;
     for (const playlist of playlists) {
         const li = document.createElement('li');
+        li.id = playlist.id;
         li.innerText = `${i}. ${playlist.pName}`;
         list.appendChild(li);
         i++;
-
-        li.onmouseenter = () => { document.getElementById('details').innerText = `NAME: ${playlist.pName} \nID: [${playlist.pID}] \nSERVER: ${playlist.gName} \nDESCRIPTION: ${playlist.pDesc}` };
         li.onclick = () => { openPlaylist(playlist.pID) };
+
+        addPlayListMouseEvent(pList, li);
     }
 });
 
@@ -79,10 +104,10 @@ socket.on('sendSongs', async (data) => {
             li.innerText = `${i}. ${song.sTitle}`;
             li.className = 'song';
             li.style.padding = '1ex'
-            list.appendChild(li);       
-            
+            list.appendChild(li);
+
             let source;
-            switch(song.type){
+            switch (song.type) {
                 case 'youtubeVideo':
                     source = 'https://youtu.be/';
                     break;
@@ -94,8 +119,8 @@ socket.on('sendSongs', async (data) => {
                     break;
             }
 
-            const url = source + song.url;            
-            await addMouseEvent(song, url, li, i);
+            const url = source + song.url;
+            await addSongMouseEvent(song, url, li, i);
             i++;
         }
 
@@ -109,11 +134,21 @@ socket.on('sendSongs', async (data) => {
 });
 
 
-async function addMouseEvent(song, url, li, i){
+async function addPlayListMouseEvent(pList, li) {
+    li.onmouseenter = () => {
+        li.appendChild(pListDropdown);
+        document.getElementById('details').innerText = `NAME: ${pList.pName} \nID: [${pList.pID}] \nSERVER: ${pList.gName} \nDESCRIPTION: ${pList.pDesc}`
+        document.getElementById('pRename').onclick = () => { /*editPlayList(pList.sID, 'pRename');*/ };
+        document.getElementById('pEditDesc').onclick = () => { /*editPlayList(pList.sID, 'pEditDesc');*/ };
+    };
+}
+
+
+async function addSongMouseEvent(song, url, li, i) {
     li.onmouseenter = () => {
         if (!dropdownLock) {
             document.getElementById('details').innerText = `TITLE: ${song.sTitle}\nTYPE: ${song.type} \nURL: ${url}`;
-            li.appendChild(dropdown);
+            li.appendChild(songDropdown);
             document.getElementById('sDelete').onclick = () => { editSong(song.sID, 'sDelete') };
             document.getElementById('sUp').onclick = () => { editSong(song.sID, 'sUp'); /*dropdownLock = true*/; movedLiIndex = i - 2; };
             document.getElementById('sDown').onclick = () => { editSong(song.sID, 'sDown'); /*dropdownLock = true*/; movedLiIndex = i; };

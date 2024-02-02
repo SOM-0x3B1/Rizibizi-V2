@@ -138,6 +138,32 @@ module.exports = {
                 }
             });
 
+
+            socket.on('editPlaylist', async(pListID, action, text) => {
+                if (authenticated) {
+                    const conn = await dbPool.getConnection();
+                    const pLists = await conn.query("SELECT playlist.id WHERE playlist.editorID = ? AND playlist.id = ?", [editorID, pListID]);
+                    if (pLists.length > 0) {
+                        switch (action) {
+                            case 'pRename':
+                                if(text.length <= 45)
+                                    await conn.query("UPDATE playlist SET name = ? WHERE playlist.id = ?", [text, pListID]);
+                                break;
+
+                            case 'pEditDesc':
+                                if(text.length <= 256)
+                                    await conn.query("UPDATE playlist SET description = ? WHERE playlist.id = ?", [text, pListID]);
+                                break;
+                        }
+                        await sendPlaylists(conn, socket, editorID);
+                        sendStats(socket);
+                    }
+                    else
+                        await sendPlaylists(conn, socket, editorID);
+                    conn.end();
+                }
+            });
+
             socket.on('editSong', async (songID, action) => {
                 if (authenticated) {
                     const conn = await dbPool.getConnection();
