@@ -288,8 +288,9 @@ module.exports = {
                         else if (url.startsWith('https://cdn.discordapp.com/attachments/')) {
                             type = QueryType.ARBITRARY;
                         }
-                        else
-                            type = QueryType.AUTO;
+                        else 
+                            return await interaction.reply(`:warning: Unrecognized URL; song has not been saved.\nReceived input: "${url}"`);
+
 
                         const searchedSongs = await player.search(url, {
                             requestedBy: interaction.user,
