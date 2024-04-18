@@ -24,7 +24,7 @@ module.exports = {
                 name: 'Source code',
                 value: 'https://github.com/SOM-0x3B1/Rizibizi-V2',
             })
-            .setFooter({ text: 'Version: 2.0.1' });
+            .setFooter({ text: 'Version: 2.0.5' });
 
         await interaction.reply({
             embeds: [embed]

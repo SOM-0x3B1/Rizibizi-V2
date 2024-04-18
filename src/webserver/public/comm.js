@@ -6,7 +6,7 @@ const songDropdown = document.getElementById('sDropdown');
 const backButton = document.getElementById('back');
 const submitButton = document.getElementById('submit');
 
-const nameEditor = document.getElementById('descEditor');
+const nameEditor = document.getElementById('nameEditor');
 const descEditor = document.getElementById('descEditor');
 
 var dropdownLock = false;
