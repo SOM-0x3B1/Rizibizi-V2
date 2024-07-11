@@ -27,10 +27,10 @@ let visits = 0;
 app.disable('x-powered-by')
 
 app.set('trust proxy', 1);
-app.use(limiter)
+app.use(limiter);
 app.use(urlencoded({ extended: true, limit: '3mb' }));
 //app.use(bodyParser.json());
-app.use(express.static('/public/'));
+app.use(express.static(join(__dirname, 'public')))
 
 
 app.get('/', (_, res) => {
@@ -38,7 +38,7 @@ app.get('/', (_, res) => {
     //visits++;
 });
 
-app.get('*', (req, res) => {
+/*app.get('*', (req, res) => {
     const hasExtension = req.path.includes('.');
     const joinedPath = join(__dirname, '/public/', (hasExtension ? req.path : (req.path + '.html')));
 
@@ -48,7 +48,7 @@ app.get('*', (req, res) => {
         res.writeHead(307, { 'Location': 'https://www.onekilobit.eu/404' });
         res.end();
     }
-});
+});*/
 
 
 
