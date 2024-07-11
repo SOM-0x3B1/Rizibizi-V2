@@ -1,9 +1,10 @@
 # Rizibizi 2.0
 
-<img align="right" src="https://music.onekilobit.eu/media/pot-lid3.gif">
 A fairly advanced music bot for Discord.
 
 ## Highlighted features
+<img align="right" src="https://music.onekilobit.eu/media/pot-lid3.gif">
+
 - YouTube, Spotify and Discord attachment support
 - Real-time effects (bass boost, nightcore, 8D)
 - Local and global playlist management
