@@ -1,8 +1,10 @@
 require('dotenv').config();
 const { token } = process.env;
+const { ytToken } = process.env;
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const fs = require('fs');
 const { Player } = require('discord-player');
+const { YoutubeiExtractor } = require('discord-player-youtubei');
 const os = require('os');
 const { createWebServer } = require('./webserver/server.js');
 
@@ -26,7 +28,11 @@ const player = Player.singleton(client, {
         }
     }
 });
+
 player.extractors.loadDefault();
+player.extractors.register(YoutubeiExtractor, {
+    authentication: ytToken
+})
 
 const functionFolders = fs.readdirSync('./src/functions');
 for (const folder of functionFolders) {

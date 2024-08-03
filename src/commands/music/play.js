@@ -34,7 +34,7 @@ module.exports = {
         if (!interaction.member.voice.channel)
             return interaction.reply(':warning: You need to be in a VC to use this command.');
 
-        let queue = await getQueue(player, interaction);
+        const queue = await getQueue(player, interaction);
 
         if (!queue.connection) {
             /*const connection = await joinVoiceChannel({
@@ -164,8 +164,16 @@ module.exports = {
                 queue.tracks.shuffle();
         }
 
+
+        //console.log(queue.node.isPlaying());
+
         if (!queue.node.isPlaying())
             await queue.node.play();
+
+        //console.log(queue.node.isPlaying());
+
+
+        //console.log(queue.node.isPlaying());
 
         if (shouldLoop) {
             await looper.execute(interaction, client, res.hasPlaylist() ? 2 : 1);
