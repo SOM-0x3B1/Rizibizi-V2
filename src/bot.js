@@ -32,7 +32,7 @@ const player = Player.singleton(client, {
 player.extractors.loadDefault();
 player.extractors.register(YoutubeiExtractor, {
     authentication: ytToken
-})
+});
 
 const functionFolders = fs.readdirSync('./src/functions');
 for (const folder of functionFolders) {
