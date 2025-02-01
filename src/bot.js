@@ -12,6 +12,8 @@ const { createWebServer } = require('./webserver/server.js');
 
 os.setPriority(os.constants.priority.PRIORITY_HIGH);
 
+
+
 const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates]
 });
@@ -22,7 +24,7 @@ const player = new Player(client, {
     ytdlOptions: {
         filter: 'audioonly',
         quality: "highestaudio",
-        highWaterMark: 1 << 25,
+        highWaterMark: 1 << 30,
         requestOptions: {
             headers: {
                 cookie: "MY_YOUTUBE_COOKIE"
@@ -31,7 +33,11 @@ const player = new Player(client, {
     }
 });
 player.extractors.loadMulti(DefaultExtractors);
-player.extractors.register(YoutubeiExtractor, {})
+player.extractors.register(YoutubeiExtractor, {
+    streamOptions: {
+        highWaterMark: 1 << 30
+    }
+});
 
 
 player.events.on('error', (queue, error) => {

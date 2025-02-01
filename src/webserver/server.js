@@ -38,35 +38,6 @@ app.get('/', (_, res) => {
     //visits++;
 });
 
-/*app.get('*', (req, res) => {
-    const hasExtension = req.path.includes('.');
-    const joinedPath = join(__dirname, '/public/', (hasExtension ? req.path : (req.path + '.html')));
-
-    if (fs.existsSync(joinedPath))
-        res.sendFile(joinedPath);
-    else {
-        res.writeHead(307, { 'Location': 'https://www.onekilobit.eu/404' });
-        res.end();
-    }
-});*/
-
-
-
-/*app.post('/login', async (req, res) => {
-    if (req.body.key.length != 16)
-        return res.json({ success: false, message: 'Invalid key length' });
-
-    const conn = await dbPool.getConnection();
-    const editors = await conn.query("SELECT id, name FROM editor WHERE editor.key = ?", [req.body.key]);
-    if (editors.length > 0) {
-        const editor = editors[0];
-        const playlists = await conn.query("SELECT playlist.name, playlist.description, playlist.id, gu FROM playlist INNER JOIN guild ON playlist.guildID = guild.id WHERE editorID = ?", [editor.id]);
-        res.json({ success: true, name: editor.name, pLists: playlists });
-    }
-    else
-        res.json({ success: false, message: 'Invalid key' });
-});*/
-
 
 
 module.exports = {
