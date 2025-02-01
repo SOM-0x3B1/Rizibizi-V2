@@ -20,6 +20,8 @@ const client = new Client({
 client.commands = new Collection();
 client.commandArray = [];
 
+
+
 const player = new Player(client, {
     ytdlOptions: {
         filter: 'audioonly',
@@ -38,7 +40,6 @@ player.extractors.register(YoutubeiExtractor, {
         highWaterMark: 1 << 30
     }
 });
-
 
 player.events.on('error', (queue, error) => {
     // Emitted when the player queue encounters error

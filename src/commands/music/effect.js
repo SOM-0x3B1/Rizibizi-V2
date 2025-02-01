@@ -16,7 +16,7 @@ module.exports = {
                 .setDescription('The filter you want to toggle')
                 .setRequired(true)
                 .addChoices(
-                    { name: 'soft bass boost', value: 'softBassBoost' },
+                    /*{ name: 'soft bass boost', value: 'softBassBoost' },*/
                     { name: 'hard bass boost', value: 'bassboost' },
                     { name: 'nightcore', value: 'nightcore' },
                     { name: '8D', value: '8D' },

@@ -6,7 +6,7 @@ const { addNewSongToDB, shortenURL, urlToType } = require('../../utility/playlis
 module.exports = {
     name: 'interactionCreate',
     async execute(interaction, client) {
-        if (interaction.isChatInputCommand()) {
+        if (interaction.isChatInputCommand() || interaction.isContextMenuCommand()) {
             const { commands } = client;
             const { commandName } = interaction;
             const command = commands.get(commandName);

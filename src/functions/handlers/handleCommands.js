@@ -18,7 +18,8 @@ module.exports = (client) => {
                 commandArray.push(command.data.toJSON());
                 console.log(`Command: ${folder} / ${command.data.name} handled`);
             }
-        }
+        }      
+
 
         const clientId = '1111391677651877969';
         const rest = new REST({ version: '9' }).setToken(process.env.token);
