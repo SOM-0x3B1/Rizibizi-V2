@@ -99,15 +99,17 @@ module.exports = {
         let query = interaction.options.getString('query');
         let type = interaction.options.getString('specify');
         if (!type) {
-            if (query.startsWith('https://youtu.be/') || query.startsWith('https://www.youtube.com/') || query.startsWith('https://music.youtube.com/')) {
-                console.log("Detected YouTube URL");
+            if (query.startsWith('https://youtu.be/') || query.startsWith('https://www.youtube.com/') || query.startsWith('https://music.youtube.com/')) {                
                 if (query.includes('playlist?') || query.includes('&list=')) {
+                    console.log("Detected YouTube playlist URL");
                     type = QueryType.YOUTUBE_PLAYLIST;
                     if (!query.includes('playlist?'))
                         query = 'https://www.youtube.com/playlist?list=' + query.split('=')[2].split('&')[0];
                 }
-                else
+                else{
+                    console.log("Detected YouTube URL");
                     type = QueryType.YOUTUBE_VIDEO;
+                }
             }
             else if (query.startsWith('https://open.spotify.com/')) {
                 console.log("Detected Spotify URL");
