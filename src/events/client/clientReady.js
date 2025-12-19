@@ -2,7 +2,7 @@ const { ActivityType } = require('discord.js');
 const { dbPool, valueExists } = require('../../utility/db.js');
 
 module.exports = {
-    name: 'ready',
+    name: 'clientReady',
     once: true,
     async execute(client) {
         const conn = await dbPool.getConnection();
